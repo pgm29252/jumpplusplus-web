@@ -8,12 +8,16 @@ import {
   Trash2,
   Loader2,
   CheckCircle,
-  CheckCircle2,
   Clock3,
   XCircle,
+  MapPinned,
+  X,
+  ExternalLink,
 } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 import { api, Booking } from "@/lib/api";
 import ActionConfirmModal from "../../../components/ui/ActionConfirmModal";
+import ToastNotice from "@/components/ui/ToastNotice";
 import { formatDate } from "@/lib/utils";
 
 export default function MyBookingsPage() {
@@ -21,8 +25,10 @@ export default function MyBookingsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [cancelling, setCancelling] = useState<string | null>(null);
-  const [success, setSuccess] = useState("");
+  const [cancelToast, setCancelToast] = useState<"idle" | "done" | "error">("idle");
   const [bookingToCancel, setBookingToCancel] = useState<Booking | null>(null);
+  const [mapBooking, setMapBooking] = useState<Booking | null>(null);
+  const [copiedCoords, setCopiedCoords] = useState<"idle" | "done" | "error">("idle");
 
   useEffect(() => {
     fetchBookings();
@@ -41,7 +47,6 @@ export default function MyBookingsPage() {
 
   const handleCancel = async (bookingId: string) => {
     setError("");
-    setSuccess("");
     setBookingToCancel(null);
     setCancelling(bookingId);
     try {
@@ -51,11 +56,13 @@ export default function MyBookingsPage() {
           b.id === bookingId ? { ...b, status: "CANCELLED" } : b,
         ),
       );
-      setSuccess("Booking cancelled successfully.");
+      setCancelToast("done");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to cancel booking");
+      setCancelToast("error");
     } finally {
       setCancelling(null);
+      window.setTimeout(() => setCancelToast("idle"), 1800);
     }
   };
 
@@ -95,6 +102,69 @@ export default function MyBookingsPage() {
 
   const cancelledBookings = bookings.filter((b) => b.status === "CANCELLED");
 
+  const getMapUrl = (booking: Booking) => {
+    if (
+      typeof booking.event.latitude === "number" &&
+      typeof booking.event.longitude === "number"
+    ) {
+      const lat = booking.event.latitude.toFixed(6);
+      const lng = booking.event.longitude.toFixed(6);
+      return `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lng}#map=16/${lat}/${lng}`;
+    }
+
+    if (booking.event.locationName?.trim()) {
+      return `https://www.openstreetmap.org/search?query=${encodeURIComponent(booking.event.locationName)}`;
+    }
+
+    return `https://www.openstreetmap.org/search?query=${encodeURIComponent(booking.event.title)}`;
+  };
+
+  const getMapEmbedUrl = (booking: Booking) => {
+    if (
+      typeof booking.event.latitude === "number" &&
+      typeof booking.event.longitude === "number"
+    ) {
+      const lat = booking.event.latitude;
+      const lng = booking.event.longitude;
+      const delta = 0.008;
+      const left = (lng - delta).toFixed(6);
+      const right = (lng + delta).toFixed(6);
+      const top = (lat + delta).toFixed(6);
+      const bottom = (lat - delta).toFixed(6);
+      return `https://www.openstreetmap.org/export/embed.html?bbox=${left}%2C${bottom}%2C${right}%2C${top}&layer=mapnik&marker=${lat.toFixed(6)}%2C${lng.toFixed(6)}`;
+    }
+
+    return null;
+  };
+
+  const getCoordinatesText = (booking: Booking) => {
+    if (
+      typeof booking.event.latitude === "number" &&
+      typeof booking.event.longitude === "number"
+    ) {
+      return `${booking.event.latitude.toFixed(6)}, ${booking.event.longitude.toFixed(6)}`;
+    }
+
+    return null;
+  };
+
+  const handleCopyCoordinates = async (booking: Booking) => {
+    const coords = getCoordinatesText(booking);
+    if (!coords || !navigator?.clipboard) {
+      setCopiedCoords("error");
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(coords);
+      setCopiedCoords("done");
+      window.setTimeout(() => setCopiedCoords("idle"), 1600);
+    } catch {
+      setCopiedCoords("error");
+      window.setTimeout(() => setCopiedCoords("idle"), 1600);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -130,13 +200,6 @@ export default function MyBookingsPage() {
         {error && (
           <div className="mb-4 bg-rose-50 border border-rose-200 text-rose-700 px-4 py-3 rounded-xl">
             {error}
-          </div>
-        )}
-
-        {success && (
-          <div className="mb-4 bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-xl flex items-start gap-2">
-            <CheckCircle2 className="w-5 h-5 mt-0.5" />
-            <p className="text-sm font-medium">{success}</p>
           </div>
         )}
 
@@ -211,26 +274,40 @@ export default function MyBookingsPage() {
                         )}
                       </div>
 
-                      {booking.status === "CONFIRMED" &&
-                        new Date(booking.startTime) > new Date() && (
-                          <button
-                            onClick={() => setBookingToCancel(booking)}
-                            disabled={cancelling === booking.id}
-                            className="flex items-center gap-2 text-red-600 hover:text-red-700 font-medium text-sm disabled:opacity-60"
-                          >
-                            {cancelling === booking.id ? (
-                              <>
-                                <Loader2 className="w-4 h-4 animate-spin" />
-                                Cancelling...
-                              </>
-                            ) : (
-                              <>
-                                <Trash2 className="w-4 h-4" />
-                                Cancel Booking
-                              </>
-                            )}
-                          </button>
-                        )}
+                      <div className="flex flex-wrap items-center gap-4">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setCopiedCoords("idle");
+                            setMapBooking(booking);
+                          }}
+                          className="flex items-center gap-2 text-indigo-600 hover:text-indigo-700 font-medium text-sm"
+                        >
+                          <MapPinned className="w-4 h-4" />
+                          View Map
+                        </button>
+
+                        {booking.status === "CONFIRMED" &&
+                          new Date(booking.startTime) > new Date() && (
+                            <button
+                              onClick={() => setBookingToCancel(booking)}
+                              disabled={cancelling === booking.id}
+                              className="flex items-center gap-2 text-red-600 hover:text-red-700 font-medium text-sm disabled:opacity-60"
+                            >
+                              {cancelling === booking.id ? (
+                                <>
+                                  <Loader2 className="w-4 h-4 animate-spin" />
+                                  Cancelling...
+                                </>
+                              ) : (
+                                <>
+                                  <Trash2 className="w-4 h-4" />
+                                  Cancel Booking
+                                </>
+                              )}
+                            </button>
+                          )}
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -277,6 +354,17 @@ export default function MyBookingsPage() {
                             },
                           )}
                         </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setCopiedCoords("idle");
+                            setMapBooking(booking);
+                          }}
+                          className="flex items-center gap-2 text-indigo-600 hover:text-indigo-700 font-medium"
+                        >
+                          <MapPinned className="w-4 h-4" />
+                          View Map
+                        </button>
                       </div>
                     </div>
                   ))}
@@ -304,6 +392,17 @@ export default function MyBookingsPage() {
                           <p className="text-sm text-gray-600 mt-1">
                             Cancelled on {formatDate(booking.createdAt)}
                           </p>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setCopiedCoords("idle");
+                              setMapBooking(booking);
+                            }}
+                            className="mt-2 inline-flex items-center gap-2 text-indigo-600 hover:text-indigo-700 font-medium text-sm"
+                          >
+                            <MapPinned className="w-4 h-4" />
+                            View Map
+                          </button>
                         </div>
                         <span className="px-3 py-1 rounded-lg text-sm font-medium bg-red-100 text-red-700">
                           CANCELLED
@@ -312,11 +411,123 @@ export default function MyBookingsPage() {
                     </div>
                   ))}
                 </div>
+
               </section>
             )}
           </div>
         )}
       </div>
+
+      <AnimatePresence>
+        {mapBooking && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <div
+              className="absolute inset-0 bg-black/45"
+              onClick={() => setMapBooking(null)}
+            />
+
+            <motion.div
+              initial={{ opacity: 0, y: 18, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 12, scale: 0.98 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              className="relative z-10 w-full max-w-2xl overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl"
+            >
+              <div className="flex items-start justify-between border-b border-gray-100 px-4 py-3">
+                <div>
+                  <h3 className="text-base font-semibold text-gray-900">
+                    {mapBooking.event.title}
+                  </h3>
+                  <p className="text-xs text-gray-500 mt-0.5">
+                    {mapBooking.event.locationName?.trim() ||
+                      "Selected event location"}
+                  </p>
+                  {getCoordinatesText(mapBooking) && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      Coordinates: {getCoordinatesText(mapBooking)}
+                    </p>
+                  )}
+                </div>
+                <button
+                  onClick={() => setMapBooking(null)}
+                  className="rounded-lg p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              {getMapEmbedUrl(mapBooking) ? (
+                <iframe
+                  title={`Map for ${mapBooking.event.title}`}
+                  src={getMapEmbedUrl(mapBooking) ?? undefined}
+                  className="h-80 w-full"
+                />
+              ) : (
+                <div className="flex h-80 items-center justify-center bg-gray-50 px-6 text-center text-sm text-gray-600">
+                  Exact coordinates are not available for this event yet. You can still open a search map view.
+                </div>
+              )}
+
+              <div className="flex flex-wrap items-center justify-end gap-2 border-t border-gray-100 px-4 py-3">
+                {getCoordinatesText(mapBooking) && (
+                  <button
+                    type="button"
+                    onClick={() => handleCopyCoordinates(mapBooking)}
+                    disabled={copiedCoords !== "idle"}
+                    className="rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {copiedCoords === "done"
+                      ? "Copied"
+                      : copiedCoords === "error"
+                        ? "Copy failed"
+                        : "Copy Coordinates"}
+                  </button>
+                )}
+                <button
+                  onClick={() => setMapBooking(null)}
+                  className="rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100"
+                >
+                  Close
+                </button>
+                <a
+                  href={getMapUrl(mapBooking)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-indigo-600 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+                >
+                  <ExternalLink className="h-3.5 w-3.5" />
+                  Open in OSM
+                </a>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <ToastNotice
+        open={copiedCoords !== "idle"}
+        tone={copiedCoords === "done" ? "success" : "error"}
+        message={
+          copiedCoords === "done"
+            ? "Coordinates copied"
+            : "Unable to copy coordinates"
+        }
+      />
+
+      <ToastNotice
+        open={cancelToast !== "idle"}
+        tone={cancelToast === "done" ? "success" : "error"}
+        message={
+          cancelToast === "done"
+            ? "Booking cancelled"
+            : "Failed to cancel booking"
+        }
+      />
 
       <ActionConfirmModal
         open={Boolean(bookingToCancel)}

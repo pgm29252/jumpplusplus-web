@@ -61,6 +61,9 @@ export const api = {
     create: (body: {
       title: string;
       description?: string;
+      locationName?: string;
+      latitude?: number;
+      longitude?: number;
       duration?: number;
       price?: number;
       maxSlots?: number;
@@ -130,6 +133,9 @@ export interface Event {
   id: string;
   title: string;
   description?: string;
+  locationName?: string;
+  latitude?: number;
+  longitude?: number;
   duration: number;
   price: number;
   maxSlots: number;
@@ -149,6 +155,14 @@ export interface Booking {
   status: "PENDING" | "CONFIRMED" | "CANCELLED";
   notes?: string;
   createdAt: string;
-  event: { id: string; title: string; duration: number; price: number };
+  event: {
+    id: string;
+    title: string;
+    locationName?: string;
+    latitude?: number;
+    longitude?: number;
+    duration: number;
+    price: number;
+  };
   user?: { id: string; name: string; email: string };
 }

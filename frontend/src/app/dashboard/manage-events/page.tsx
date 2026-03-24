@@ -1,10 +1,12 @@
 "use client";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { api, Event } from "@/lib/api";
 import ActionConfirmModal from "../../../components/ui/ActionConfirmModal";
+import ToastNotice from "@/components/ui/ToastNotice";
 import {
   modalBackdropVariants,
   modalContainerVariants,
@@ -21,7 +23,15 @@ import {
   Clock,
   Users,
   DollarSign,
+  MapPin,
 } from "lucide-react";
+
+const EventMapPicker = dynamic(() => import("@/components/EventMapPicker"), {
+  ssr: false,
+  loading: () => (
+    <div className="h-64 w-full animate-pulse rounded-xl border border-gray-200 bg-gray-100" />
+  ),
+});
 
 // ──────────────────────────────────────────────
 // Types
@@ -29,6 +39,9 @@ import {
 interface EventForm {
   title: string;
   description: string;
+  locationName: string;
+  latitude: number | "";
+  longitude: number | "";
   duration: number;
   price: number;
   maxSlots: number;
@@ -37,6 +50,9 @@ interface EventForm {
 const emptyForm: EventForm = {
   title: "",
   description: "",
+  locationName: "",
+  latitude: "",
+  longitude: "",
   duration: 60,
   price: 0,
   maxSlots: 1,
@@ -85,8 +101,14 @@ export default function ManageEventsPage() {
   const [formOpen, setFormOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
   const [form, setForm] = useState<EventForm>(emptyForm);
+  const [autoLocationName, setAutoLocationName] = useState(true);
   const [formError, setFormError] = useState("");
+  const [saveToast, setSaveToast] = useState<"idle" | "done" | "error">("idle");
   const [formLoading, setFormLoading] = useState(false);
+  const [mapLookupLoading, setMapLookupLoading] = useState(false);
+  const [geoLoading, setGeoLoading] = useState(false);
+  const [geoError, setGeoError] = useState("");
+  const reverseGeocodeRequestRef = useRef(0);
 
   // Confirm modal
   const [modalAction, setModalAction] = useState<ModalAction>(null);
@@ -131,10 +153,113 @@ export default function ManageEventsPage() {
     }
   }, [user, fetchEvents]);
 
+  const reverseGeocodeLocation = useCallback(async (lat: number, lng: number) => {
+    const requestId = ++reverseGeocodeRequestRef.current;
+    setMapLookupLoading(true);
+
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(lat.toString())}&lon=${encodeURIComponent(lng.toString())}`,
+        {
+          headers: {
+            Accept: "application/json",
+          },
+        },
+      );
+
+      if (!response.ok) return;
+
+      const data = (await response.json()) as {
+        display_name?: string;
+        address?: {
+          road?: string;
+          suburb?: string;
+          city?: string;
+          town?: string;
+          village?: string;
+          state?: string;
+          country?: string;
+        };
+      };
+
+      if (requestId !== reverseGeocodeRequestRef.current) return;
+
+      const parts = [
+        data.address?.road,
+        data.address?.suburb,
+        data.address?.city || data.address?.town || data.address?.village,
+        data.address?.state,
+        data.address?.country,
+      ].filter(Boolean);
+
+      const label = parts.length > 0 ? parts.join(", ") : data.display_name;
+      if (!label) return;
+
+      setForm((current) => ({
+        ...current,
+        locationName: label,
+      }));
+    } catch {
+      // Silent failure keeps manual location edits intact.
+    } finally {
+      if (requestId === reverseGeocodeRequestRef.current) {
+        setMapLookupLoading(false);
+      }
+    }
+  }, []);
+
+  const useCurrentLocation = useCallback(() => {
+    if (typeof window === "undefined" || !navigator.geolocation) {
+      setGeoError("Geolocation is not supported in this browser.");
+      return;
+    }
+
+    setGeoError("");
+    setGeoLoading(true);
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lat = Number(position.coords.latitude.toFixed(6));
+        const lng = Number(position.coords.longitude.toFixed(6));
+
+        setForm((current) => ({
+          ...current,
+          latitude: lat,
+          longitude: lng,
+        }));
+
+        if (autoLocationName) {
+          reverseGeocodeLocation(lat, lng);
+        }
+
+        setGeoLoading(false);
+      },
+      (error) => {
+        if (error.code === error.PERMISSION_DENIED) {
+          setGeoError("Location access denied. Please allow location access.");
+        } else if (error.code === error.POSITION_UNAVAILABLE) {
+          setGeoError("Unable to determine your current location.");
+        } else if (error.code === error.TIMEOUT) {
+          setGeoError("Timed out while trying to get your location.");
+        } else {
+          setGeoError("Failed to get your current location.");
+        }
+
+        setGeoLoading(false);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
+      },
+    );
+  }, [autoLocationName, reverseGeocodeLocation]);
+
   // ── Open create form ────────────────────────
   const openCreate = () => {
     setEditingEvent(null);
     setForm(emptyForm);
+    setAutoLocationName(true);
     setFormError("");
     setFormOpen(true);
   };
@@ -145,10 +270,14 @@ export default function ManageEventsPage() {
     setForm({
       title: event.title,
       description: event.description ?? "",
+      locationName: event.locationName ?? "",
+      latitude: event.latitude ?? "",
+      longitude: event.longitude ?? "",
       duration: event.duration,
       price: event.price,
       maxSlots: event.maxSlots,
     });
+    setAutoLocationName(!(event.locationName ?? "").trim());
     setFormError("");
     setFormOpen(true);
   };
@@ -169,24 +298,38 @@ export default function ManageEventsPage() {
         await api.events.update(editingEvent.id, {
           title: form.title.trim(),
           description: form.description.trim() || undefined,
+          locationName: form.locationName.trim() || undefined,
+          latitude:
+            form.latitude === "" ? undefined : Number(form.latitude),
+          longitude:
+            form.longitude === "" ? undefined : Number(form.longitude),
           duration: form.duration,
           price: form.price,
           maxSlots: form.maxSlots,
         });
+        setSaveToast("done");
       } else {
         await api.events.create({
           title: form.title.trim(),
           description: form.description.trim() || undefined,
+          locationName: form.locationName.trim() || undefined,
+          latitude:
+            form.latitude === "" ? undefined : Number(form.latitude),
+          longitude:
+            form.longitude === "" ? undefined : Number(form.longitude),
           duration: form.duration,
           price: form.price,
           maxSlots: form.maxSlots,
         });
+        setSaveToast("done");
       }
       setFormOpen(false);
       await fetchEvents();
     } catch (err) {
       setFormError(err instanceof Error ? err.message : "Something went wrong");
+      setSaveToast("error");
     } finally {
+      window.setTimeout(() => setSaveToast("idle"), 1800);
       setFormLoading(false);
     }
   };
@@ -417,12 +560,12 @@ export default function ManageEventsPage() {
             />
 
             <motion.div
-              className="relative w-full max-w-lg rounded-2xl bg-white border border-gray-200 shadow-xl p-6"
+              className="relative flex w-full max-w-lg max-h-[90vh] flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-xl"
               variants={modalContainerVariants}
             >
               {/* Header */}
               <motion.div
-                className="flex items-center justify-between mb-5"
+                className="sticky top-0 z-10 flex items-center justify-between border-b border-gray-100 bg-white px-6 py-4"
                 variants={modalItemVariants}
               >
                 <h2 className="text-lg font-bold text-gray-900">
@@ -438,103 +581,227 @@ export default function ManageEventsPage() {
                 </button>
               </motion.div>
 
-              {formError && (
+              <form onSubmit={handleFormSubmit} className="flex min-h-0 flex-1 flex-col">
+                <div className="min-h-0 space-y-4 overflow-y-auto px-6 py-4">
+                  {formError && (
+                    <motion.div
+                      variants={modalItemVariants}
+                      className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700"
+                    >
+                      {formError}
+                    </motion.div>
+                  )}
+
+                  {/* Title */}
+                  <motion.div variants={modalItemVariants}>
+                    <Field label="Title" icon={CalendarDays}>
+                      <input
+                        type="text"
+                        value={form.title}
+                        onChange={(e) =>
+                          setForm((f) => ({ ...f, title: e.target.value }))
+                        }
+                        placeholder="e.g. Open Jump Session"
+                        className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition"
+                        required
+                      />
+                    </Field>
+                  </motion.div>
+
+                  {/* Description */}
+                  <motion.div variants={modalItemVariants}>
+                    <Field label="Description (optional)" icon={CalendarDays}>
+                      <textarea
+                        rows={3}
+                        value={form.description}
+                        onChange={(e) =>
+                          setForm((f) => ({ ...f, description: e.target.value }))
+                        }
+                        placeholder="Brief description of the event…"
+                        className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition resize-none"
+                      />
+                    </Field>
+                  </motion.div>
+
+                  <motion.div
+                    variants={modalItemVariants}
+                    className="grid grid-cols-1 md:grid-cols-3 gap-3"
+                  >
+                    <Field label="Location Name" icon={MapPin}>
+                      <input
+                        type="text"
+                        value={form.locationName}
+                        onChange={(e) => {
+                          setForm((f) => ({ ...f, locationName: e.target.value }));
+                          if (autoLocationName) setAutoLocationName(false);
+                        }}
+                        placeholder="e.g. Mlimani Arena"
+                        className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition"
+                      />
+                      <label className="mt-2 inline-flex items-center gap-2 text-xs text-gray-600">
+                        <input
+                          type="checkbox"
+                          className="h-3.5 w-3.5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                          checked={autoLocationName}
+                          onChange={(e) => {
+                            const enabled = e.target.checked;
+                            setAutoLocationName(enabled);
+                            if (
+                              enabled &&
+                              form.latitude !== "" &&
+                              form.longitude !== ""
+                            ) {
+                              reverseGeocodeLocation(
+                                Number(form.latitude),
+                                Number(form.longitude),
+                              );
+                            }
+                          }}
+                        />
+                        Auto-fill location name from map
+                      </label>
+                    </Field>
+
+                    <Field label="Latitude" icon={MapPin}>
+                      <input
+                        type="number"
+                        step="0.000001"
+                        min={-90}
+                        max={90}
+                        value={form.latitude}
+                        onChange={(e) =>
+                          setForm((f) => ({
+                            ...f,
+                            latitude:
+                              e.target.value === ""
+                                ? ""
+                                : Number(e.target.value),
+                          }))
+                        }
+                        className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition"
+                      />
+                    </Field>
+
+                    <Field label="Longitude" icon={MapPin}>
+                      <input
+                        type="number"
+                        step="0.000001"
+                        min={-180}
+                        max={180}
+                        value={form.longitude}
+                        onChange={(e) =>
+                          setForm((f) => ({
+                            ...f,
+                            longitude:
+                              e.target.value === ""
+                                ? ""
+                                : Number(e.target.value),
+                          }))
+                        }
+                        className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition"
+                      />
+                    </Field>
+                  </motion.div>
+
+                  <motion.div variants={modalItemVariants}>
+                    <Field label="Map Picker" icon={MapPin}>
+                      <div className="mb-2 flex items-center justify-between">
+                        <button
+                          type="button"
+                          onClick={useCurrentLocation}
+                          disabled={geoLoading}
+                          className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                          {geoLoading && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                          Use My Current Location
+                        </button>
+                        {geoError && <span className="text-xs text-rose-600">{geoError}</span>}
+                      </div>
+                      <EventMapPicker
+                        latitude={
+                          form.latitude === "" ? undefined : Number(form.latitude)
+                        }
+                        longitude={
+                          form.longitude === "" ? undefined : Number(form.longitude)
+                        }
+                        locationName={form.locationName}
+                        onChange={(lat, lng) => {
+                          setForm((f) => ({
+                            ...f,
+                            latitude: Number(lat.toFixed(6)),
+                            longitude: Number(lng.toFixed(6)),
+                          }));
+                          if (autoLocationName) {
+                            reverseGeocodeLocation(lat, lng);
+                          }
+                        }}
+                      />
+                      <p className="mt-1.5 text-xs text-gray-500">
+                        {mapLookupLoading && autoLocationName
+                          ? "Detecting location name from selected point..."
+                          : autoLocationName
+                            ? "Location name auto-updates when you drag/click on the map."
+                            : "Auto location name is off. You can enter a custom location name."}
+                      </p>
+                    </Field>
+                  </motion.div>
+
+                  {/* Duration / Price / Slots */}
+                  <motion.div
+                    variants={modalItemVariants}
+                    className="grid grid-cols-3 gap-3"
+                  >
+                    <Field label="Duration (min)" icon={Clock}>
+                      <input
+                        type="number"
+                        min={1}
+                        value={form.duration}
+                        onChange={(e) =>
+                          setForm((f) => ({
+                            ...f,
+                            duration: Math.max(1, parseInt(e.target.value) || 1),
+                          }))
+                        }
+                        className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition"
+                      />
+                    </Field>
+
+                    <Field label="Price ($)" icon={DollarSign}>
+                      <input
+                        type="number"
+                        min={0}
+                        step={0.01}
+                        value={form.price}
+                        onChange={(e) =>
+                          setForm((f) => ({
+                            ...f,
+                            price: Math.max(0, parseFloat(e.target.value) || 0),
+                          }))
+                        }
+                        className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition"
+                      />
+                    </Field>
+
+                    <Field label="Max Slots" icon={Users}>
+                      <input
+                        type="number"
+                        min={1}
+                        value={form.maxSlots}
+                        onChange={(e) =>
+                          setForm((f) => ({
+                            ...f,
+                            maxSlots: Math.max(1, parseInt(e.target.value) || 1),
+                          }))
+                        }
+                        className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition"
+                      />
+                    </Field>
+                  </motion.div>
+                </div>
+
                 <motion.div
                   variants={modalItemVariants}
-                  className="mb-4 px-4 py-3 rounded-xl bg-rose-50 border border-rose-200 text-sm text-rose-700"
-                >
-                  {formError}
-                </motion.div>
-              )}
-
-              <form onSubmit={handleFormSubmit} className="space-y-4">
-                {/* Title */}
-                <motion.div variants={modalItemVariants}>
-                  <Field label="Title" icon={CalendarDays}>
-                    <input
-                      type="text"
-                      value={form.title}
-                      onChange={(e) =>
-                        setForm((f) => ({ ...f, title: e.target.value }))
-                      }
-                      placeholder="e.g. Open Jump Session"
-                      className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition"
-                      required
-                    />
-                  </Field>
-                </motion.div>
-
-                {/* Description */}
-                <motion.div variants={modalItemVariants}>
-                  <Field label="Description (optional)" icon={CalendarDays}>
-                    <textarea
-                      rows={3}
-                      value={form.description}
-                      onChange={(e) =>
-                        setForm((f) => ({ ...f, description: e.target.value }))
-                      }
-                      placeholder="Brief description of the event…"
-                      className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition resize-none"
-                    />
-                  </Field>
-                </motion.div>
-
-                {/* Duration / Price / Slots */}
-                <motion.div
-                  variants={modalItemVariants}
-                  className="grid grid-cols-3 gap-3"
-                >
-                  <Field label="Duration (min)" icon={Clock}>
-                    <input
-                      type="number"
-                      min={1}
-                      value={form.duration}
-                      onChange={(e) =>
-                        setForm((f) => ({
-                          ...f,
-                          duration: Math.max(1, parseInt(e.target.value) || 1),
-                        }))
-                      }
-                      className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition"
-                    />
-                  </Field>
-
-                  <Field label="Price ($)" icon={DollarSign}>
-                    <input
-                      type="number"
-                      min={0}
-                      step={0.01}
-                      value={form.price}
-                      onChange={(e) =>
-                        setForm((f) => ({
-                          ...f,
-                          price: Math.max(0, parseFloat(e.target.value) || 0),
-                        }))
-                      }
-                      className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition"
-                    />
-                  </Field>
-
-                  <Field label="Max Slots" icon={Users}>
-                    <input
-                      type="number"
-                      min={1}
-                      value={form.maxSlots}
-                      onChange={(e) =>
-                        setForm((f) => ({
-                          ...f,
-                          maxSlots: Math.max(1, parseInt(e.target.value) || 1),
-                        }))
-                      }
-                      className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition"
-                    />
-                  </Field>
-                </motion.div>
-
-                {/* Submit */}
-                <motion.div
-                  variants={modalItemVariants}
-                  className="flex justify-end gap-2 pt-2"
+                  className="sticky bottom-0 z-10 flex justify-end gap-2 border-t border-gray-100 bg-white px-6 py-4"
                 >
                   <button
                     type="button"
@@ -542,14 +809,14 @@ export default function ManageEventsPage() {
                       if (!formLoading) setFormOpen(false);
                     }}
                     disabled={formLoading}
-                    className="px-4 py-2.5 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-100 transition-colors disabled:opacity-50"
+                    className="rounded-xl px-4 py-2.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 disabled:opacity-50"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={formLoading}
-                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 transition-colors disabled:opacity-60"
+                    className="flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-indigo-700 disabled:opacity-60"
                   >
                     {formLoading && (
                       <Loader2 className="w-4 h-4 animate-spin" />
@@ -583,6 +850,16 @@ export default function ManageEventsPage() {
         loading={actionLoading}
         onConfirm={handleConfirmAction}
         onClose={() => setModalAction(null)}
+      />
+
+      <ToastNotice
+        open={saveToast !== "idle"}
+        tone={saveToast === "done" ? "success" : "error"}
+        message={
+          saveToast === "done"
+            ? "Event saved successfully"
+            : "Failed to save event"
+        }
       />
     </div>
   );

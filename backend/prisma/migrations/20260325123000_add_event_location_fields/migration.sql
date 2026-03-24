@@ -1,0 +1,5 @@
+-- Add optional location details for events
+ALTER TABLE "Event"
+ADD COLUMN "locationName" TEXT,
+ADD COLUMN "latitude" DOUBLE PRECISION,
+ADD COLUMN "longitude" DOUBLE PRECISION;

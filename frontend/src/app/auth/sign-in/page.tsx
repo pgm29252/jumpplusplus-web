@@ -1,11 +1,12 @@
 "use client";
-import { useState, FormEvent } from "react";
+import { Suspense, useState, FormEvent } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Eye, EyeOff, Rocket, Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import ToastNotice from "@/components/ui/ToastNotice";
 
-export default function SignInPage() {
+function SignInContent() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -13,6 +14,8 @@ export default function SignInPage() {
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get("redirect") || "/dashboard";
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -22,7 +25,7 @@ export default function SignInPage() {
       const user = await login(email, password);
       // Also set cookie for middleware
       document.cookie = `token=${localStorage.getItem("token")}; path=/; max-age=604800; SameSite=Lax`;
-      router.push("/dashboard");
+      router.push(redirectTo);
       void user;
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Sign in failed");
@@ -32,15 +35,15 @@ export default function SignInPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-violet-50 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-linear-to-br from-indigo-50 via-white to-violet-50 flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-200">
+            <div className="w-10 h-10 rounded-xl bg-linear-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-200">
               <Rocket className="w-5 h-5 text-white" />
             </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">
+            <span className="text-xl font-bold bg-linear-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">
               JumpPlusPlus
             </span>
           </Link>
@@ -52,11 +55,6 @@ export default function SignInPage() {
 
         {/* Card */}
         <div className="bg-white rounded-3xl shadow-xl shadow-gray-100 border border-gray-100 p-8">
-          {error && (
-            <div className="mb-4 bg-rose-50 border border-rose-100 text-rose-600 text-sm px-4 py-3 rounded-xl">
-              {error}
-            </div>
-          )}
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -100,7 +98,7 @@ export default function SignInPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-500 to-violet-600 text-white font-semibold py-3 rounded-xl hover:opacity-90 transition-opacity shadow-lg shadow-indigo-200 disabled:opacity-60 disabled:cursor-not-allowed text-sm"
+              className="w-full flex items-center justify-center gap-2 bg-linear-to-r from-indigo-500 to-violet-600 text-white font-semibold py-3 rounded-xl hover:opacity-90 transition-opacity shadow-lg shadow-indigo-200 disabled:opacity-60 disabled:cursor-not-allowed text-sm"
             >
               {loading ? (
                 <>
@@ -137,6 +135,16 @@ export default function SignInPage() {
           .
         </p>
       </div>
+
+      <ToastNotice open={Boolean(error)} tone="error" message={error} />
     </div>
+  );
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense fallback={null}>
+      <SignInContent />
+    </Suspense>
   );
 }

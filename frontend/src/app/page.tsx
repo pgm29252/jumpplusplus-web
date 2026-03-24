@@ -1,4 +1,5 @@
 import Link from "next/link";
+import PublicEventsSection from "@/components/PublicEventsSection";
 import {
   ArrowRight,
   Zap,
@@ -133,6 +134,12 @@ export default function LandingPage() {
             </span>
           </div>
           <div className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600">
+            <a
+              href="#events"
+              className="hover:text-gray-900 transition-colors"
+            >
+              Events
+            </a>
             <a
               href="#features"
               className="hover:text-gray-900 transition-colors"
@@ -285,6 +292,8 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+
+      <PublicEventsSection />
 
       {/* FEATURES */}
       <section id="features" className="py-24 px-6 bg-gray-50">

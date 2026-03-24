@@ -1,12 +1,15 @@
 "use client";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import {
   CalendarDays,
   Clock,
   DollarSign,
   Loader2,
   CheckCircle2,
+  MapPin,
+  ExternalLink,
   X,
 } from "lucide-react";
 import { api, Event } from "@/lib/api";
@@ -14,7 +17,8 @@ import Calendar from "@/components/Calendar";
 import ActionConfirmModal from "../../../components/ui/ActionConfirmModal";
 import { formatDate } from "@/lib/utils";
 
-export default function BookingsPage() {
+function BookingsContent() {
+  const searchParams = useSearchParams();
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -25,10 +29,80 @@ export default function BookingsPage() {
   const [booking, setBooking] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [success, setSuccess] = useState("");
+  const [mapLat, setMapLat] = useState<number>(-6.7924);
+  const [mapLng, setMapLng] = useState<number>(39.2083);
+  const [mapLoading, setMapLoading] = useState(false);
+  const [mapNote, setMapNote] = useState("");
 
   useEffect(() => {
     fetchEvents();
   }, []);
+
+  useEffect(() => {
+    const eventId = searchParams.get("eventId");
+    if (!eventId || events.length === 0) return;
+
+    const matchedEvent = events.find((event) => event.id === eventId);
+    if (matchedEvent) {
+      setSelectedEvent(matchedEvent);
+    }
+  }, [events, searchParams]);
+
+  useEffect(() => {
+    if (!selectedEvent) return;
+
+    if (
+      typeof selectedEvent.latitude === "number" &&
+      typeof selectedEvent.longitude === "number"
+    ) {
+      setMapLat(selectedEvent.latitude);
+      setMapLng(selectedEvent.longitude);
+      setMapLoading(false);
+      setMapNote(
+        selectedEvent.locationName
+          ? `Location: ${selectedEvent.locationName}`
+          : "Location preview powered by OpenStreetMap",
+      );
+      return;
+    }
+
+    const geocodeEvent = async () => {
+      setMapLoading(true);
+      setMapNote("Resolving event location from OpenStreetMap...");
+
+      const query = `${selectedEvent.locationName ?? ""} ${selectedEvent.title} ${selectedEvent.description ?? ""}`.trim();
+
+      try {
+        const res = await fetch(
+          `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&q=${encodeURIComponent(query)}`,
+        );
+        const data = (await res.json()) as Array<{ lat: string; lon: string }>;
+
+        if (Array.isArray(data) && data.length > 0) {
+          setMapLat(Number(data[0].lat));
+          setMapLng(Number(data[0].lon));
+          setMapNote("Location preview powered by OpenStreetMap");
+        } else {
+          setMapLat(-6.7924);
+          setMapLng(39.2083);
+          setMapNote("Exact location unavailable. Showing default map area.");
+        }
+      } catch {
+        setMapLat(-6.7924);
+        setMapLng(39.2083);
+        setMapNote("Could not load map location. Showing default map area.");
+      } finally {
+        setMapLoading(false);
+      }
+    };
+
+    void geocodeEvent();
+  }, [selectedEvent]);
+
+  const bbox = `${mapLng - 0.01}%2C${mapLat - 0.01}%2C${mapLng + 0.01}%2C${mapLat + 0.01}`;
+  const marker = `${mapLat}%2C${mapLng}`;
+  const osmEmbedUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${marker}`;
+  const osmMapUrl = `https://www.openstreetmap.org/?mlat=${mapLat}&mlon=${mapLng}#map=14/${mapLat}/${mapLng}`;
 
   const fetchEvents = async () => {
     try {
@@ -176,6 +250,36 @@ export default function BookingsPage() {
 
                 {/* Calendar */}
                 <div className="mb-6">
+                  <div className="mb-3 flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+                      <MapPin className="w-4 h-4 text-indigo-500" />
+                      Event Location
+                    </div>
+                    <a
+                      href={osmMapUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1 text-xs font-semibold text-indigo-600 hover:text-indigo-700"
+                    >
+                      Open in OSM <ExternalLink className="w-3 h-3" />
+                    </a>
+                  </div>
+
+                  <div className="overflow-hidden rounded-xl border border-gray-200 bg-gray-50">
+                    <iframe
+                      title="Event location map"
+                      src={osmEmbedUrl}
+                      className="h-52 w-full"
+                      loading="lazy"
+                    />
+                  </div>
+
+                  <p className="mt-2 text-xs text-gray-500">
+                    {mapLoading ? "Loading map..." : mapNote}
+                  </p>
+                </div>
+
+                <div className="mb-6">
                   <Calendar
                     onSelectDate={setSelectedDate}
                     minDate={new Date()}
@@ -301,5 +405,13 @@ export default function BookingsPage() {
         onClose={() => setShowConfirmModal(false)}
       />
     </div>
+  );
+}
+
+export default function BookingsPage() {
+  return (
+    <Suspense fallback={null}>
+      <BookingsContent />
+    </Suspense>
   );
 }

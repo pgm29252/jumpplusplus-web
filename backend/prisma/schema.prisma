@@ -63,6 +63,9 @@ model Event {
   id          String   @id @default(cuid())
   title       String
   description String?
+  locationName String?
+  latitude    Float?
+  longitude   Float?
   duration    Int      @default(60)
   price       Float    @default(0)
   maxSlots    Int      @default(1)
