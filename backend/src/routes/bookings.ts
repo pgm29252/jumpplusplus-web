@@ -11,6 +11,10 @@ const createBookingSchema = z.object({
   notes: z.string().optional(),
 });
 
+function getRouteId(id: string | string[]) {
+  return Array.isArray(id) ? id[0] : id;
+}
+
 // GET /api/bookings - List user's bookings
 router.get(
   "/",
@@ -76,8 +80,9 @@ router.get(
   "/:id",
   authenticate,
   async (req: AuthenticatedRequest, res: Response) => {
+    const bookingId = getRouteId(req.params.id);
     const booking = await prisma.booking.findUnique({
-      where: { id: req.params.id },
+      where: { id: bookingId },
       select: {
         id: true,
         startTime: true,
@@ -172,12 +177,10 @@ router.post(
     });
 
     if (existing) {
-      res
-        .status(409)
-        .json({
-          success: false,
-          message: "You already have a booking for this time",
-        });
+      res.status(409).json({
+        success: false,
+        message: "You already have a booking for this time",
+      });
       return;
     }
 
@@ -219,8 +222,9 @@ router.patch(
   "/:id/cancel",
   authenticate,
   async (req: AuthenticatedRequest, res: Response) => {
+    const bookingId = getRouteId(req.params.id);
     const booking = await prisma.booking.findUnique({
-      where: { id: req.params.id },
+      where: { id: bookingId },
       select: {
         userId: true,
         status: true,
@@ -246,7 +250,7 @@ router.patch(
     }
 
     const updated = await prisma.booking.update({
-      where: { id: req.params.id },
+      where: { id: bookingId },
       data: { status: "CANCELLED" },
       select: {
         id: true,

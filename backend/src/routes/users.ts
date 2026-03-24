@@ -19,6 +19,10 @@ const updateUserSchema = z.object({
   password: z.string().min(8).optional(),
 });
 
+function getRouteId(id: string | string[]) {
+  return Array.isArray(id) ? id[0] : id;
+}
+
 // GET /api/users — Admin only: list all users
 router.get(
   "/",
@@ -61,7 +65,7 @@ router.get(
 
 // GET /api/users/:id — Admin or self
 router.get("/:id", async (req: AuthenticatedRequest, res: Response) => {
-  const { id } = req.params;
+  const id = getRouteId(req.params.id);
   const isAdminOrMod = ["ADMIN", "MODERATOR"].includes(req.user!.role);
   if (!isAdminOrMod && req.user!.sub !== id) {
     res.status(403).json({ success: false, message: "Forbidden" });
@@ -89,7 +93,7 @@ router.get("/:id", async (req: AuthenticatedRequest, res: Response) => {
 
 // PATCH /api/users/:id — Admin or self (role update: Admin only)
 router.patch("/:id", async (req: AuthenticatedRequest, res: Response) => {
-  const { id } = req.params;
+  const id = getRouteId(req.params.id);
   const isAdmin = req.user!.role === "ADMIN";
   const isSelf = req.user!.sub === id;
 
@@ -112,12 +116,10 @@ router.patch("/:id", async (req: AuthenticatedRequest, res: Response) => {
 
   // Only admin can change role or activation status
   if ((role !== undefined || isActive !== undefined) && !isAdmin) {
-    res
-      .status(403)
-      .json({
-        success: false,
-        message: "Only admins can change role or status",
-      });
+    res.status(403).json({
+      success: false,
+      message: "Only admins can change role or status",
+    });
     return;
   }
 
@@ -157,7 +159,7 @@ router.delete(
   "/:id",
   requireRole("ADMIN"),
   async (req: AuthenticatedRequest, res: Response) => {
-    const { id } = req.params;
+    const id = getRouteId(req.params.id);
     if (req.user!.sub === id) {
       res
         .status(400)

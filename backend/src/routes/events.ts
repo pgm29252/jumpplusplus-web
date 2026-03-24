@@ -19,6 +19,10 @@ const createEventSchema = z.object({
 
 const updateEventSchema = createEventSchema.partial();
 
+function getRouteId(id: string | string[]) {
+  return Array.isArray(id) ? id[0] : id;
+}
+
 // GET /api/events/admin/all - List ALL events including inactive (Admin/Moderator only)
 router.get(
   "/admin/all",
@@ -52,8 +56,9 @@ router.patch(
   authenticate,
   requireRole("ADMIN", "MODERATOR"),
   async (req: AuthenticatedRequest, res: Response) => {
+    const eventId = getRouteId(req.params.id);
     const event = await prisma.event.findUnique({
-      where: { id: req.params.id },
+      where: { id: eventId },
     });
     if (!event) {
       res.status(404).json({ success: false, message: "Event not found" });
@@ -66,7 +71,7 @@ router.patch(
     }
 
     await prisma.event.update({
-      where: { id: req.params.id },
+      where: { id: eventId },
       data: { isActive: true },
     });
 
@@ -97,8 +102,9 @@ router.get("/", async (req: Request, res: Response) => {
 
 // GET /api/events/:id - Get event details
 router.get("/:id", async (req: Request, res: Response) => {
+  const eventId = getRouteId(req.params.id);
   const event = await prisma.event.findUnique({
-    where: { id: req.params.id },
+    where: { id: eventId },
     select: {
       id: true,
       title: true,
@@ -178,6 +184,7 @@ router.patch(
   authenticate,
   requireRole("ADMIN", "MODERATOR"),
   async (req: AuthenticatedRequest, res: Response) => {
+    const eventId = getRouteId(req.params.id);
     const parsed = updateEventSchema.safeParse(req.body);
     if (!parsed.success) {
       res.status(400).json({
@@ -189,7 +196,7 @@ router.patch(
     }
 
     const event = await prisma.event.findUnique({
-      where: { id: req.params.id },
+      where: { id: eventId },
     });
     if (!event) {
       res.status(404).json({ success: false, message: "Event not found" });
@@ -202,7 +209,7 @@ router.patch(
     }
 
     const updated = await prisma.event.update({
-      where: { id: req.params.id },
+      where: { id: eventId },
       data: parsed.data,
       select: {
         id: true,
@@ -224,8 +231,9 @@ router.delete(
   authenticate,
   requireRole("ADMIN", "MODERATOR"),
   async (req: AuthenticatedRequest, res: Response) => {
+    const eventId = getRouteId(req.params.id);
     const event = await prisma.event.findUnique({
-      where: { id: req.params.id },
+      where: { id: eventId },
     });
     if (!event) {
       res.status(404).json({ success: false, message: "Event not found" });
@@ -238,7 +246,7 @@ router.delete(
     }
 
     await prisma.event.update({
-      where: { id: req.params.id },
+      where: { id: eventId },
       data: { isActive: false },
     });
 
