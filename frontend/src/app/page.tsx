@@ -1,5 +1,6 @@
 import Link from "next/link";
 import PublicEventsSection from "@/components/PublicEventsSection";
+import LandingNavbar from "@/components/LandingNavbar";
 import {
   ArrowRight,
   Zap,
@@ -122,56 +123,7 @@ const plans = [
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-white text-gray-900">
-      {/* NAV */}
-      <nav className="fixed top-0 inset-x-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center">
-              <Rocket className="w-4 h-4 text-white" />
-            </div>
-            <span className="text-lg font-bold bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">
-              JumpPlusPlus
-            </span>
-          </div>
-          <div className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600">
-            <a href="#events" className="hover:text-gray-900 transition-colors">
-              Events
-            </a>
-            <a
-              href="#features"
-              className="hover:text-gray-900 transition-colors"
-            >
-              Features
-            </a>
-            <a
-              href="#pricing"
-              className="hover:text-gray-900 transition-colors"
-            >
-              Pricing
-            </a>
-            <a
-              href="#testimonials"
-              className="hover:text-gray-900 transition-colors"
-            >
-              Reviews
-            </a>
-          </div>
-          <div className="flex items-center gap-3">
-            <Link
-              href="/auth/sign-in"
-              className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors px-4 py-2"
-            >
-              Sign In
-            </Link>
-            <Link
-              href="/auth/sign-up"
-              className="text-sm font-semibold bg-gradient-to-r from-indigo-500 to-violet-600 text-white px-5 py-2.5 rounded-xl hover:opacity-90 transition-opacity shadow-sm"
-            >
-              Get Started
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <LandingNavbar />
 
       {/* HERO */}
       <section className="pt-32 pb-24 px-6 relative overflow-hidden">
