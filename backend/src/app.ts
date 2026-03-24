@@ -8,6 +8,8 @@ dotenv.config();
 
 import authRoutes from "./routes/auth";
 import userRoutes from "./routes/users";
+import eventRoutes from "./routes/events";
+import bookingRoutes from "./routes/bookings";
 
 const app = express();
 
@@ -49,6 +51,10 @@ app.get("/health", (_req, res) => {
 // API routes
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/events", eventRoutes);
+app.use("/api/bookings", bookingRoutes);
+app.use("/api/events", eventRoutes);
+app.use("/api/bookings", bookingRoutes);
 
 // 404 handler
 app.use((_req, res) => {

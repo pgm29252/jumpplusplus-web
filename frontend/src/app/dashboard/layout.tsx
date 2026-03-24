@@ -10,6 +10,9 @@ import {
   Menu,
   X,
   ChevronRight,
+  Calendar,
+  BookOpen,
+  Settings2,
 } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
@@ -18,6 +21,14 @@ import { cn } from "@/lib/utils";
 const navItems = [
   { href: "/dashboard", label: "Overview", icon: LayoutDashboard, exact: true },
   { href: "/dashboard/users", label: "Users", icon: Users, adminOnly: true },
+  {
+    href: "/dashboard/manage-events",
+    label: "Manage Events",
+    icon: Settings2,
+    staffOnly: true,
+  },
+  { href: "/dashboard/bookings", label: "Book Event", icon: Calendar },
+  { href: "/dashboard/my-bookings", label: "My Bookings", icon: BookOpen },
 ];
 
 export default function DashboardLayout({
@@ -57,9 +68,12 @@ export default function DashboardLayout({
     router.push("/");
   };
 
-  const filteredNav = navItems.filter(
-    (item) => !item.adminOnly || user.role === "ADMIN",
-  );
+  const filteredNav = navItems.filter((item) => {
+    if (item.adminOnly) return user.role === "ADMIN";
+    if (item.staffOnly)
+      return user.role === "ADMIN" || user.role === "MODERATOR";
+    return true;
+  });
 
   const Sidebar = () => (
     <div className="flex flex-col h-full">

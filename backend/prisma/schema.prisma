@@ -13,6 +13,12 @@ enum Role {
   ADMIN
 }
 
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
 model User {
   id        String   @id @default(cuid())
   name      String
@@ -24,8 +30,10 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  sessions  Session[]
-  auditLogs AuditLog[]
+  sessions   Session[]
+  auditLogs  AuditLog[]
+  events     Event[]
+  bookings   Booking[]
 }
 
 model Session {
@@ -48,4 +56,37 @@ model AuditLog {
   createdAt  DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Event {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  duration    Int      @default(60)
+  price       Float    @default(0)
+  maxSlots    Int      @default(1)
+  createdById String
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  createdBy User      @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  bookings  Booking[]
+}
+
+model Booking {
+  id        String          @id @default(cuid())
+  eventId   String
+  userId    String
+  startTime DateTime
+  endTime   DateTime
+  status    BookingStatus   @default(PENDING)
+  notes     String?
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, userId, startTime])
 }
