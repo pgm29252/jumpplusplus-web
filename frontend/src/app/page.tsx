@@ -134,10 +134,7 @@ export default function LandingPage() {
             </span>
           </div>
           <div className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600">
-            <a
-              href="#events"
-              className="hover:text-gray-900 transition-colors"
-            >
+            <a href="#events" className="hover:text-gray-900 transition-colors">
               Events
             </a>
             <a

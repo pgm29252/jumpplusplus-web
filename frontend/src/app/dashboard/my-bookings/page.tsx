@@ -25,10 +25,14 @@ export default function MyBookingsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [cancelling, setCancelling] = useState<string | null>(null);
-  const [cancelToast, setCancelToast] = useState<"idle" | "done" | "error">("idle");
+  const [cancelToast, setCancelToast] = useState<"idle" | "done" | "error">(
+    "idle",
+  );
   const [bookingToCancel, setBookingToCancel] = useState<Booking | null>(null);
   const [mapBooking, setMapBooking] = useState<Booking | null>(null);
-  const [copiedCoords, setCopiedCoords] = useState<"idle" | "done" | "error">("idle");
+  const [copiedCoords, setCopiedCoords] = useState<"idle" | "done" | "error">(
+    "idle",
+  );
 
   useEffect(() => {
     fetchBookings();
@@ -411,7 +415,6 @@ export default function MyBookingsPage() {
                     </div>
                   ))}
                 </div>
-
               </section>
             )}
           </div>
@@ -469,7 +472,8 @@ export default function MyBookingsPage() {
                 />
               ) : (
                 <div className="flex h-80 items-center justify-center bg-gray-50 px-6 text-center text-sm text-gray-600">
-                  Exact coordinates are not available for this event yet. You can still open a search map view.
+                  Exact coordinates are not available for this event yet. You
+                  can still open a search map view.
                 </div>
               )}
 

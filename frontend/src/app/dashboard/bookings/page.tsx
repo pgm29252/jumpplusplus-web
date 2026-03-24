@@ -70,7 +70,8 @@ function BookingsContent() {
       setMapLoading(true);
       setMapNote("Resolving event location from OpenStreetMap...");
 
-      const query = `${selectedEvent.locationName ?? ""} ${selectedEvent.title} ${selectedEvent.description ?? ""}`.trim();
+      const query =
+        `${selectedEvent.locationName ?? ""} ${selectedEvent.title} ${selectedEvent.description ?? ""}`.trim();
 
       try {
         const res = await fetch(

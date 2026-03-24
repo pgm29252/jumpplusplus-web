@@ -39,7 +39,9 @@ export default function PublicEventsSection() {
               Explore what is available before you sign in
             </h2>
             <p className="max-w-2xl text-lg text-gray-500">
-              Guests can browse active events and available slots. Booking stays protected, so signing in is only required when you are ready to reserve.
+              Guests can browse active events and available slots. Booking stays
+              protected, so signing in is only required when you are ready to
+              reserve.
             </p>
           </div>
           <Link
@@ -89,7 +91,8 @@ export default function PublicEventsSection() {
                         {event.title}
                       </h3>
                       <p className="mt-2 text-sm leading-6 text-gray-500">
-                        {event.description || "Join this event and reserve a slot when you are ready."}
+                        {event.description ||
+                          "Join this event and reserve a slot when you are ready."}
                       </p>
                     </div>
                     <div className="rounded-2xl bg-indigo-50 p-3 text-indigo-600">
@@ -111,7 +114,8 @@ export default function PublicEventsSection() {
                         <span className="font-medium">Availability</span>
                       </div>
                       <p>
-                        {event.maxSlots - (event._count?.bookings || 0)}/{event.maxSlots} slots
+                        {event.maxSlots - (event._count?.bookings || 0)}/
+                        {event.maxSlots} slots
                       </p>
                     </div>
                   </div>

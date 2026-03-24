@@ -153,60 +153,63 @@ export default function ManageEventsPage() {
     }
   }, [user, fetchEvents]);
 
-  const reverseGeocodeLocation = useCallback(async (lat: number, lng: number) => {
-    const requestId = ++reverseGeocodeRequestRef.current;
-    setMapLookupLoading(true);
+  const reverseGeocodeLocation = useCallback(
+    async (lat: number, lng: number) => {
+      const requestId = ++reverseGeocodeRequestRef.current;
+      setMapLookupLoading(true);
 
-    try {
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(lat.toString())}&lon=${encodeURIComponent(lng.toString())}`,
-        {
-          headers: {
-            Accept: "application/json",
+      try {
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(lat.toString())}&lon=${encodeURIComponent(lng.toString())}`,
+          {
+            headers: {
+              Accept: "application/json",
+            },
           },
-        },
-      );
+        );
 
-      if (!response.ok) return;
+        if (!response.ok) return;
 
-      const data = (await response.json()) as {
-        display_name?: string;
-        address?: {
-          road?: string;
-          suburb?: string;
-          city?: string;
-          town?: string;
-          village?: string;
-          state?: string;
-          country?: string;
+        const data = (await response.json()) as {
+          display_name?: string;
+          address?: {
+            road?: string;
+            suburb?: string;
+            city?: string;
+            town?: string;
+            village?: string;
+            state?: string;
+            country?: string;
+          };
         };
-      };
 
-      if (requestId !== reverseGeocodeRequestRef.current) return;
+        if (requestId !== reverseGeocodeRequestRef.current) return;
 
-      const parts = [
-        data.address?.road,
-        data.address?.suburb,
-        data.address?.city || data.address?.town || data.address?.village,
-        data.address?.state,
-        data.address?.country,
-      ].filter(Boolean);
+        const parts = [
+          data.address?.road,
+          data.address?.suburb,
+          data.address?.city || data.address?.town || data.address?.village,
+          data.address?.state,
+          data.address?.country,
+        ].filter(Boolean);
 
-      const label = parts.length > 0 ? parts.join(", ") : data.display_name;
-      if (!label) return;
+        const label = parts.length > 0 ? parts.join(", ") : data.display_name;
+        if (!label) return;
 
-      setForm((current) => ({
-        ...current,
-        locationName: label,
-      }));
-    } catch {
-      // Silent failure keeps manual location edits intact.
-    } finally {
-      if (requestId === reverseGeocodeRequestRef.current) {
-        setMapLookupLoading(false);
+        setForm((current) => ({
+          ...current,
+          locationName: label,
+        }));
+      } catch {
+        // Silent failure keeps manual location edits intact.
+      } finally {
+        if (requestId === reverseGeocodeRequestRef.current) {
+          setMapLookupLoading(false);
+        }
       }
-    }
-  }, []);
+    },
+    [],
+  );
 
   const useCurrentLocation = useCallback(() => {
     if (typeof window === "undefined" || !navigator.geolocation) {
@@ -299,10 +302,8 @@ export default function ManageEventsPage() {
           title: form.title.trim(),
           description: form.description.trim() || undefined,
           locationName: form.locationName.trim() || undefined,
-          latitude:
-            form.latitude === "" ? undefined : Number(form.latitude),
-          longitude:
-            form.longitude === "" ? undefined : Number(form.longitude),
+          latitude: form.latitude === "" ? undefined : Number(form.latitude),
+          longitude: form.longitude === "" ? undefined : Number(form.longitude),
           duration: form.duration,
           price: form.price,
           maxSlots: form.maxSlots,
@@ -313,10 +314,8 @@ export default function ManageEventsPage() {
           title: form.title.trim(),
           description: form.description.trim() || undefined,
           locationName: form.locationName.trim() || undefined,
-          latitude:
-            form.latitude === "" ? undefined : Number(form.latitude),
-          longitude:
-            form.longitude === "" ? undefined : Number(form.longitude),
+          latitude: form.latitude === "" ? undefined : Number(form.latitude),
+          longitude: form.longitude === "" ? undefined : Number(form.longitude),
           duration: form.duration,
           price: form.price,
           maxSlots: form.maxSlots,
@@ -581,7 +580,10 @@ export default function ManageEventsPage() {
                 </button>
               </motion.div>
 
-              <form onSubmit={handleFormSubmit} className="flex min-h-0 flex-1 flex-col">
+              <form
+                onSubmit={handleFormSubmit}
+                className="flex min-h-0 flex-1 flex-col"
+              >
                 <div className="min-h-0 space-y-4 overflow-y-auto px-6 py-4">
                   {formError && (
                     <motion.div
@@ -615,7 +617,10 @@ export default function ManageEventsPage() {
                         rows={3}
                         value={form.description}
                         onChange={(e) =>
-                          setForm((f) => ({ ...f, description: e.target.value }))
+                          setForm((f) => ({
+                            ...f,
+                            description: e.target.value,
+                          }))
                         }
                         placeholder="Brief description of the event…"
                         className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition resize-none"
@@ -632,7 +637,10 @@ export default function ManageEventsPage() {
                         type="text"
                         value={form.locationName}
                         onChange={(e) => {
-                          setForm((f) => ({ ...f, locationName: e.target.value }));
+                          setForm((f) => ({
+                            ...f,
+                            locationName: e.target.value,
+                          }));
                           if (autoLocationName) setAutoLocationName(false);
                         }}
                         placeholder="e.g. Mlimani Arena"
@@ -712,17 +720,27 @@ export default function ManageEventsPage() {
                           disabled={geoLoading}
                           className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
                         >
-                          {geoLoading && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                          {geoLoading && (
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          )}
                           Use My Current Location
                         </button>
-                        {geoError && <span className="text-xs text-rose-600">{geoError}</span>}
+                        {geoError && (
+                          <span className="text-xs text-rose-600">
+                            {geoError}
+                          </span>
+                        )}
                       </div>
                       <EventMapPicker
                         latitude={
-                          form.latitude === "" ? undefined : Number(form.latitude)
+                          form.latitude === ""
+                            ? undefined
+                            : Number(form.latitude)
                         }
                         longitude={
-                          form.longitude === "" ? undefined : Number(form.longitude)
+                          form.longitude === ""
+                            ? undefined
+                            : Number(form.longitude)
                         }
                         locationName={form.locationName}
                         onChange={(lat, lng) => {
@@ -759,7 +777,10 @@ export default function ManageEventsPage() {
                         onChange={(e) =>
                           setForm((f) => ({
                             ...f,
-                            duration: Math.max(1, parseInt(e.target.value) || 1),
+                            duration: Math.max(
+                              1,
+                              parseInt(e.target.value) || 1,
+                            ),
                           }))
                         }
                         className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition"
@@ -790,7 +811,10 @@ export default function ManageEventsPage() {
                         onChange={(e) =>
                           setForm((f) => ({
                             ...f,
-                            maxSlots: Math.max(1, parseInt(e.target.value) || 1),
+                            maxSlots: Math.max(
+                              1,
+                              parseInt(e.target.value) || 1,
+                            ),
                           }))
                         }
                         className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition"
