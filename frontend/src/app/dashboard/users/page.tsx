@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   Search,
   Trash2,
@@ -12,6 +13,12 @@ import {
   XCircle,
 } from "lucide-react";
 import { api, User } from "@/lib/api";
+import ActionConfirmModal from "@/components/ui/ActionConfirmModal";
+import {
+  modalBackdropVariants,
+  modalContainerVariants,
+  modalItemVariants,
+} from "@/components/ui/modalMotion";
 import { useAuth } from "@/hooks/useAuth";
 import { cn, formatDate, getRoleColor } from "@/lib/utils";
 import { useRouter } from "next/navigation";
@@ -39,6 +46,17 @@ function EditModal({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && !saving) {
+        onClose();
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [onClose, saving]);
+
   async function handleSave() {
     setSaving(true);
     setError("");
@@ -53,92 +71,111 @@ function EditModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div
-        className="absolute inset-0 bg-black/30 backdrop-blur-sm"
-        onClick={onClose}
-      />
-      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 z-10">
-        <div className="flex items-center justify-between mb-5">
-          <h2 className="text-lg font-bold text-gray-900">Edit User</h2>
-          <button
-            onClick={onClose}
-            className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400"
+    <AnimatePresence>
+      <motion.div
+        className="fixed inset-0 z-50 flex items-center justify-center p-4"
+        initial="hidden"
+        animate="visible"
+        exit="exit"
+      >
+        <motion.div
+          className="absolute inset-0 bg-black/30 backdrop-blur-sm"
+          variants={modalBackdropVariants}
+          onClick={() => {
+            if (!saving) onClose();
+          }}
+        />
+        <motion.div
+          className="relative z-10 w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl"
+          variants={modalContainerVariants}
+        >
+          <motion.div
+            className="mb-5 flex items-center justify-between"
+            variants={modalItemVariants}
           >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-        {error && (
-          <p className="text-sm text-rose-500 mb-4 bg-rose-50 px-3 py-2 rounded-xl">
-            {error}
-          </p>
-        )}
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-              Name
-            </label>
-            <input
-              value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
-              className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-              Role
-            </label>
-            <select
-              value={form.role}
-              onChange={(e) =>
-                setForm({ ...form, role: e.target.value as EditData["role"] })
-              }
-              className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+            <h2 className="text-lg font-bold text-gray-900">Edit User</h2>
+            <button
+              onClick={onClose}
+              className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100"
             >
-              <option value="USER">User</option>
-              <option value="MODERATOR">Moderator</option>
-              <option value="ADMIN">Admin</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-              Status
-            </label>
-            <select
-              value={form.isActive ? "active" : "inactive"}
-              onChange={(e) =>
-                setForm({ ...form, isActive: e.target.value === "active" })
-              }
-              className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              <X className="h-5 w-5" />
+            </button>
+          </motion.div>
+          {error && (
+            <motion.p
+              className="mb-4 rounded-xl bg-rose-50 px-3 py-2 text-sm text-rose-500"
+              variants={modalItemVariants}
             >
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-            </select>
+              {error}
+            </motion.p>
+          )}
+          <div className="space-y-4">
+            <motion.div variants={modalItemVariants}>
+              <label className="mb-1.5 block text-sm font-semibold text-gray-700">
+                Name
+              </label>
+              <input
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+            </motion.div>
+            <motion.div variants={modalItemVariants}>
+              <label className="mb-1.5 block text-sm font-semibold text-gray-700">
+                Role
+              </label>
+              <select
+                value={form.role}
+                onChange={(e) =>
+                  setForm({ ...form, role: e.target.value as EditData["role"] })
+                }
+                className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              >
+                <option value="USER">User</option>
+                <option value="MODERATOR">Moderator</option>
+                <option value="ADMIN">Admin</option>
+              </select>
+            </motion.div>
+            <motion.div variants={modalItemVariants}>
+              <label className="mb-1.5 block text-sm font-semibold text-gray-700">
+                Status
+              </label>
+              <select
+                value={form.isActive ? "active" : "inactive"}
+                onChange={(e) =>
+                  setForm({ ...form, isActive: e.target.value === "active" })
+                }
+                className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              >
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+              </select>
+            </motion.div>
           </div>
-        </div>
-        <div className="flex gap-3 mt-6">
-          <button
-            onClick={onClose}
-            className="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-600 text-white text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-60"
-          >
-            {saving ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" /> Saving...
-              </>
-            ) : (
-              "Save changes"
-            )}
-          </button>
-        </div>
-      </div>
-    </div>
+          <motion.div className="mt-6 flex gap-3" variants={modalItemVariants}>
+            <button
+              onClick={onClose}
+              className="flex-1 rounded-xl border border-gray-200 py-2.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSave}
+              disabled={saving}
+              className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-linear-to-r from-indigo-500 to-violet-600 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-60"
+            >
+              {saving ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" /> Saving...
+                </>
+              ) : (
+                "Save changes"
+              )}
+            </button>
+          </motion.div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
   );
 }
 
@@ -149,7 +186,9 @@ export default function UsersPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [userToDelete, setUserToDelete] = useState<User | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState("");
 
   useEffect(() => {
     if (currentUser && currentUser.role !== "ADMIN") {
@@ -179,20 +218,16 @@ export default function UsersPage() {
   }
 
   async function handleDelete(id: string) {
-    if (
-      !confirm(
-        "Are you sure you want to delete this user? This cannot be undone.",
-      )
-    )
-      return;
+    setDeleteError("");
     setDeletingId(id);
     try {
       await api.users.delete(id);
       setUsers((prev) => prev.filter((u) => u.id !== id));
     } catch (e) {
-      alert(e instanceof Error ? e.message : "Delete failed");
+      setDeleteError(e instanceof Error ? e.message : "Delete failed");
     } finally {
       setDeletingId(null);
+      setUserToDelete(null);
     }
   }
 
@@ -210,6 +245,36 @@ export default function UsersPage() {
           onClose={() => setEditingUser(null)}
           onSave={handleEdit}
         />
+      )}
+
+      <ActionConfirmModal
+        open={userToDelete !== null}
+        title="Delete User"
+        description={
+          userToDelete
+            ? `Delete ${userToDelete.name}? This action cannot be undone.`
+            : ""
+        }
+        confirmLabel="Delete"
+        danger
+        loading={deletingId !== null}
+        onClose={() => {
+          if (!deletingId) {
+            setUserToDelete(null);
+            setDeleteError("");
+          }
+        }}
+        onConfirm={() => {
+          if (userToDelete) {
+            void handleDelete(userToDelete.id);
+          }
+        }}
+      />
+
+      {deleteError && (
+        <div className="mb-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+          {deleteError}
+        </div>
       )}
 
       {/* Header */}
@@ -277,7 +342,7 @@ export default function UsersPage() {
                   <tr key={u.id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-400 to-violet-500 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
+                        <div className="w-9 h-9 shrink-0 rounded-full bg-linear-to-br from-indigo-400 to-violet-500 flex items-center justify-center text-white text-sm font-bold">
                           {u.name.charAt(0).toUpperCase()}
                         </div>
                         <div>
@@ -331,7 +396,7 @@ export default function UsersPage() {
                         </button>
                         {u.id !== currentUser?.id && (
                           <button
-                            onClick={() => handleDelete(u.id)}
+                            onClick={() => setUserToDelete(u)}
                             disabled={deletingId === u.id}
                             className="p-2 rounded-lg hover:bg-rose-50 text-gray-400 hover:text-rose-500 transition-colors disabled:opacity-50"
                             title="Delete user"
@@ -358,7 +423,7 @@ export default function UsersPage() {
                   className="p-4 hover:bg-gray-50 transition-colors"
                 >
                   <div className="flex items-center gap-3 mb-3">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-400 to-violet-500 flex items-center justify-center text-white text-sm font-bold">
+                    <div className="w-10 h-10 rounded-full bg-linear-to-br from-indigo-400 to-violet-500 flex items-center justify-center text-white text-sm font-bold">
                       {u.name.charAt(0).toUpperCase()}
                     </div>
                     <div className="flex-1 min-w-0">
@@ -402,7 +467,7 @@ export default function UsersPage() {
                     </button>
                     {u.id !== currentUser?.id && (
                       <button
-                        onClick={() => handleDelete(u.id)}
+                        onClick={() => setUserToDelete(u)}
                         disabled={deletingId === u.id}
                         className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg bg-rose-50 text-rose-500 hover:bg-rose-100 transition-colors disabled:opacity-50"
                       >

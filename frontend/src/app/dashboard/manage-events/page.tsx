@@ -2,10 +2,14 @@
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
-import type { Variants } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { api, Event } from "@/lib/api";
 import ActionConfirmModal from "../../../components/ui/ActionConfirmModal";
+import {
+  modalBackdropVariants,
+  modalContainerVariants,
+  modalItemVariants,
+} from "@/components/ui/modalMotion";
 import {
   Plus,
   Pencil,
@@ -18,45 +22,6 @@ import {
   Users,
   DollarSign,
 } from "lucide-react";
-
-const backdropVariants: Variants = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { duration: 0.14, ease: "easeOut" } },
-  exit: { opacity: 0, transition: { duration: 0.14, ease: "easeIn" } },
-};
-
-const panelVariants: Variants = {
-  hidden: { opacity: 0, y: 14, scale: 0.97 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: {
-      type: "spring" as const,
-      stiffness: 520,
-      damping: 34,
-      mass: 0.65,
-      when: "beforeChildren" as const,
-      staggerChildren: 0.04,
-    },
-  },
-  exit: {
-    opacity: 0,
-    y: 8,
-    scale: 0.975,
-    transition: { duration: 0.12, ease: "easeIn" as const },
-  },
-};
-
-const rowVariants: Variants = {
-  hidden: { opacity: 0, y: 5 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.14, ease: "easeOut" as const },
-  },
-  exit: { opacity: 0, y: 3, transition: { duration: 0.08 } },
-};
 
 // ──────────────────────────────────────────────
 // Types
@@ -437,7 +402,7 @@ export default function ManageEventsPage() {
         {formOpen && (
           <motion.div
             className="fixed inset-0 z-50 flex items-center justify-center p-4"
-            variants={backdropVariants}
+            variants={modalBackdropVariants}
             initial="hidden"
             animate="visible"
             exit="exit"
@@ -445,7 +410,7 @@ export default function ManageEventsPage() {
             {/* Backdrop */}
             <motion.div
               className="absolute inset-0 bg-gray-900/45 backdrop-blur-sm"
-              variants={backdropVariants}
+              variants={modalBackdropVariants}
               onClick={() => {
                 if (!formLoading) setFormOpen(false);
               }}
@@ -453,12 +418,12 @@ export default function ManageEventsPage() {
 
             <motion.div
               className="relative w-full max-w-lg rounded-2xl bg-white border border-gray-200 shadow-xl p-6"
-              variants={panelVariants}
+              variants={modalContainerVariants}
             >
               {/* Header */}
               <motion.div
                 className="flex items-center justify-between mb-5"
-                variants={rowVariants}
+                variants={modalItemVariants}
               >
                 <h2 className="text-lg font-bold text-gray-900">
                   {editingEvent ? "Edit Event" : "New Event"}
@@ -475,7 +440,7 @@ export default function ManageEventsPage() {
 
               {formError && (
                 <motion.div
-                  variants={rowVariants}
+                  variants={modalItemVariants}
                   className="mb-4 px-4 py-3 rounded-xl bg-rose-50 border border-rose-200 text-sm text-rose-700"
                 >
                   {formError}
@@ -484,7 +449,7 @@ export default function ManageEventsPage() {
 
               <form onSubmit={handleFormSubmit} className="space-y-4">
                 {/* Title */}
-                <motion.div variants={rowVariants}>
+                <motion.div variants={modalItemVariants}>
                   <Field label="Title" icon={CalendarDays}>
                     <input
                       type="text"
@@ -500,7 +465,7 @@ export default function ManageEventsPage() {
                 </motion.div>
 
                 {/* Description */}
-                <motion.div variants={rowVariants}>
+                <motion.div variants={modalItemVariants}>
                   <Field label="Description (optional)" icon={CalendarDays}>
                     <textarea
                       rows={3}
@@ -516,7 +481,7 @@ export default function ManageEventsPage() {
 
                 {/* Duration / Price / Slots */}
                 <motion.div
-                  variants={rowVariants}
+                  variants={modalItemVariants}
                   className="grid grid-cols-3 gap-3"
                 >
                   <Field label="Duration (min)" icon={Clock}>
@@ -568,7 +533,7 @@ export default function ManageEventsPage() {
 
                 {/* Submit */}
                 <motion.div
-                  variants={rowVariants}
+                  variants={modalItemVariants}
                   className="flex justify-end gap-2 pt-2"
                 >
                   <button
