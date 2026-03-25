@@ -1,5 +1,5 @@
 "use client";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import {
@@ -17,6 +17,18 @@ import Calendar from "@/components/Calendar";
 import ActionConfirmModal from "../../../components/ui/ActionConfirmModal";
 import { formatDate } from "@/lib/utils";
 
+function toStartOfDay(date: Date) {
+  const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
+function toEndOfDay(date: Date) {
+  const d = new Date(date);
+  d.setHours(23, 59, 59, 999);
+  return d;
+}
+
 function BookingsContent() {
   const searchParams = useSearchParams();
   const [events, setEvents] = useState<Event[]>([]);
@@ -33,6 +45,7 @@ function BookingsContent() {
   const [mapLng, setMapLng] = useState<number>(39.2083);
   const [mapLoading, setMapLoading] = useState(false);
   const [mapNote, setMapNote] = useState("");
+  const today = useMemo(() => toStartOfDay(new Date()), []);
 
   useEffect(() => {
     fetchEvents();
@@ -44,9 +57,15 @@ function BookingsContent() {
 
     const matchedEvent = events.find((event) => event.id === eventId);
     if (matchedEvent) {
+      if (!selectedDate) {
+        const preferred = matchedEvent.startDate
+          ? toStartOfDay(new Date(matchedEvent.startDate))
+          : today;
+        setSelectedDate(preferred < today ? today : preferred);
+      }
       setSelectedEvent(matchedEvent);
     }
-  }, [events, searchParams]);
+  }, [events, searchParams, selectedDate, today]);
 
   useEffect(() => {
     if (!selectedEvent) return;
@@ -105,6 +124,67 @@ function BookingsContent() {
   const osmEmbedUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${marker}`;
   const osmMapUrl = `https://www.openstreetmap.org/?mlat=${mapLat}&mlon=${mapLng}#map=14/${mapLat}/${mapLng}`;
 
+  const selectedStartTime = (() => {
+    if (!selectedEvent || !selectedDate || !selectedTime) return null;
+    const [hours, minutes] = selectedTime.split(":").map(Number);
+    const start = new Date(selectedDate);
+    start.setHours(hours, minutes, 0, 0);
+    return start;
+  })();
+
+  const selectedEndTime =
+    selectedStartTime && selectedEvent
+      ? new Date(selectedStartTime.getTime() + selectedEvent.duration * 60000)
+      : null;
+
+  const occupiedSlotsAtSelectedTime =
+    selectedEvent && selectedStartTime && selectedEndTime
+      ? (selectedEvent.bookings ?? []).filter((booking) => {
+          if (booking.status !== "CONFIRMED") return false;
+          const bookingStart = new Date(booking.startTime);
+          const bookingEnd = new Date(booking.endTime);
+          return (
+            bookingStart < selectedEndTime && bookingEnd > selectedStartTime
+          );
+        }).length
+      : 0;
+
+  const remainingSlotsAtSelectedTime =
+    selectedEvent && selectedStartTime
+      ? Math.max(0, selectedEvent.maxSlots - occupiedSlotsAtSelectedTime)
+      : null;
+
+  const eventsForSelectedDate = useMemo(
+    () =>
+      selectedDate
+        ? events.filter((event) => {
+            const selectedStart = toStartOfDay(selectedDate);
+            const selectedEnd = toEndOfDay(selectedDate);
+            const eventStart = event.startDate
+              ? toStartOfDay(new Date(event.startDate))
+              : null;
+            const eventEnd = event.endDate
+              ? toEndOfDay(new Date(event.endDate))
+              : null;
+
+            if (eventStart && selectedEnd < eventStart) return false;
+            if (eventEnd && selectedStart > eventEnd) return false;
+            return true;
+          })
+        : [],
+    [events, selectedDate],
+  );
+
+  useEffect(() => {
+    if (!selectedEvent || !selectedDate) return;
+    const stillAvailable = eventsForSelectedDate.some(
+      (event) => event.id === selectedEvent.id,
+    );
+    if (!stillAvailable) {
+      setSelectedEvent(null);
+    }
+  }, [selectedDate, selectedEvent, eventsForSelectedDate]);
+
   const fetchEvents = async () => {
     try {
       const data = await api.events.list();
@@ -137,8 +217,8 @@ function BookingsContent() {
       setSuccess(
         `Booking confirmed for ${formatDate(startTime.toISOString())} at ${selectedTime}.`,
       );
+      await fetchEvents();
       setSelectedEvent(null);
-      setSelectedDate(null);
       setSelectedTime("09:00");
       setNotes("");
     } catch (err) {
@@ -181,13 +261,36 @@ function BookingsContent() {
               </div>
             )}
 
+            <div className="mb-6 rounded-xl border border-gray-200 bg-white p-4">
+              <p className="mb-3 text-sm font-semibold text-gray-700">
+                1. Select booking date
+              </p>
+              <Calendar
+                onSelectDate={setSelectedDate}
+                minDate={today}
+                selectedDate={selectedDate}
+              />
+            </div>
+
             <div className="space-y-4">
-              {events.length === 0 ? (
+              {!selectedDate ? (
+                <div className="text-center py-12 bg-white rounded-xl border border-gray-200">
+                  <p className="text-gray-500">
+                    Select a date to see available events
+                  </p>
+                </div>
+              ) : events.length === 0 ? (
                 <div className="text-center py-12 bg-white rounded-xl border border-gray-200">
                   <p className="text-gray-500">No events available</p>
                 </div>
+              ) : eventsForSelectedDate.length === 0 ? (
+                <div className="text-center py-12 bg-white rounded-xl border border-gray-200">
+                  <p className="text-gray-500">
+                    No events available on this date
+                  </p>
+                </div>
               ) : (
-                events.map((event) => (
+                eventsForSelectedDate.map((event) => (
                   <div
                     key={event.id}
                     onClick={() => setSelectedEvent(event)}
@@ -223,10 +326,22 @@ function BookingsContent() {
                       </div>
                       <div className="flex items-center gap-2">
                         <CalendarDays className="w-4 h-4" />
-                        {event.maxSlots - (event._count?.bookings || 0)}/
-                        {event.maxSlots} slots available
+                        {event.maxSlots} max slots
                       </div>
                     </div>
+
+                    {(event.startDate || event.endDate) && (
+                      <p className="mt-2 text-xs text-gray-500">
+                        Booking window:{" "}
+                        {event.startDate
+                          ? new Date(event.startDate).toLocaleDateString()
+                          : "-"}{" "}
+                        to{" "}
+                        {event.endDate
+                          ? new Date(event.endDate).toLocaleDateString()
+                          : "-"}
+                      </p>
+                    )}
                   </div>
                 ))
               )}
@@ -281,10 +396,12 @@ function BookingsContent() {
                 </div>
 
                 <div className="mb-6">
-                  <Calendar
-                    onSelectDate={setSelectedDate}
-                    minDate={new Date()}
-                  />
+                  <p className="rounded-lg border border-indigo-100 bg-indigo-50 px-3 py-2 text-xs text-indigo-700">
+                    2. Event selected for{" "}
+                    {selectedDate
+                      ? formatDate(selectedDate.toISOString())
+                      : "your chosen date"}
+                  </p>
                 </div>
 
                 {/* Time Selection */}
@@ -300,6 +417,13 @@ function BookingsContent() {
                         onChange={(e) => setSelectedTime(e.target.value)}
                         className="w-full px-4 py-2 rounded-lg border border-gray-200 text-gray-900 focus:ring-2 focus:ring-indigo-500"
                       />
+                      {remainingSlotsAtSelectedTime !== null && (
+                        <p className="mt-2 text-xs text-gray-500">
+                          Slots remaining at selected time:{" "}
+                          {remainingSlotsAtSelectedTime}/
+                          {selectedEvent.maxSlots}
+                        </p>
+                      )}
                     </div>
 
                     {/* Notes */}

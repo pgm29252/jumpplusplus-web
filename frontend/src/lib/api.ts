@@ -64,6 +64,8 @@ export const api = {
       locationName?: string;
       latitude?: number;
       longitude?: number;
+      startDate?: string;
+      endDate?: string;
       duration?: number;
       price?: number;
       maxSlots?: number;
@@ -108,6 +110,11 @@ export const api = {
           method: "PATCH",
         },
       ),
+    adminCancel: (id: string) =>
+      request<{ success: boolean; booking: Booking }>(
+        `/api/bookings/${id}/admin-cancel`,
+        { method: "PATCH" },
+      ),
   },
 };
 
@@ -136,6 +143,8 @@ export interface Event {
   locationName?: string;
   latitude?: number;
   longitude?: number;
+  startDate?: string;
+  endDate?: string;
   duration: number;
   price: number;
   maxSlots: number;

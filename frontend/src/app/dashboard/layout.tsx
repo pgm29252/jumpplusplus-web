@@ -27,6 +27,12 @@ const navItems = [
     icon: Settings2,
     staffOnly: true,
   },
+  {
+    href: "/dashboard/manage-bookings",
+    label: "Manage Bookings",
+    icon: Calendar,
+    staffOnly: true,
+  },
   { href: "/dashboard/bookings", label: "Book Event", icon: Calendar },
   { href: "/dashboard/my-bookings", label: "My Bookings", icon: BookOpen },
 ];

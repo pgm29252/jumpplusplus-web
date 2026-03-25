@@ -42,6 +42,8 @@ interface EventForm {
   locationName: string;
   latitude: number | "";
   longitude: number | "";
+  startDate: string;
+  endDate: string;
   duration: number;
   price: number;
   maxSlots: number;
@@ -53,6 +55,8 @@ const emptyForm: EventForm = {
   locationName: "",
   latitude: "",
   longitude: "",
+  startDate: "",
+  endDate: "",
   duration: 60,
   price: 0,
   maxSlots: 1,
@@ -276,6 +280,12 @@ export default function ManageEventsPage() {
       locationName: event.locationName ?? "",
       latitude: event.latitude ?? "",
       longitude: event.longitude ?? "",
+      startDate: event.startDate
+        ? new Date(event.startDate).toISOString().slice(0, 10)
+        : "",
+      endDate: event.endDate
+        ? new Date(event.endDate).toISOString().slice(0, 10)
+        : "",
       duration: event.duration,
       price: event.price,
       maxSlots: event.maxSlots,
@@ -295,6 +305,11 @@ export default function ManageEventsPage() {
       return;
     }
 
+    if (form.startDate && form.endDate && form.endDate < form.startDate) {
+      setFormError("End date cannot be earlier than start date.");
+      return;
+    }
+
     setFormLoading(true);
     try {
       if (editingEvent) {
@@ -304,6 +319,12 @@ export default function ManageEventsPage() {
           locationName: form.locationName.trim() || undefined,
           latitude: form.latitude === "" ? undefined : Number(form.latitude),
           longitude: form.longitude === "" ? undefined : Number(form.longitude),
+          startDate: form.startDate
+            ? new Date(`${form.startDate}T00:00:00.000Z`).toISOString()
+            : undefined,
+          endDate: form.endDate
+            ? new Date(`${form.endDate}T23:59:59.999Z`).toISOString()
+            : undefined,
           duration: form.duration,
           price: form.price,
           maxSlots: form.maxSlots,
@@ -316,6 +337,12 @@ export default function ManageEventsPage() {
           locationName: form.locationName.trim() || undefined,
           latitude: form.latitude === "" ? undefined : Number(form.latitude),
           longitude: form.longitude === "" ? undefined : Number(form.longitude),
+          startDate: form.startDate
+            ? new Date(`${form.startDate}T00:00:00.000Z`).toISOString()
+            : undefined,
+          endDate: form.endDate
+            ? new Date(`${form.endDate}T23:59:59.999Z`).toISOString()
+            : undefined,
           duration: form.duration,
           price: form.price,
           maxSlots: form.maxSlots,
@@ -428,6 +455,9 @@ export default function ManageEventsPage() {
                   Slots
                 </th>
                 <th className="px-4 py-3 text-left font-semibold text-gray-600 hidden lg:table-cell">
+                  Date Range
+                </th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-600 hidden lg:table-cell">
                   Created by
                 </th>
                 <th className="px-4 py-3 text-left font-semibold text-gray-600">
@@ -467,6 +497,25 @@ export default function ManageEventsPage() {
                   {/* Slots */}
                   <td className="px-4 py-4 text-gray-600 hidden lg:table-cell">
                     {event._count?.bookings ?? 0} / {event.maxSlots}
+                  </td>
+
+                  {/* Date Range */}
+                  <td className="px-4 py-4 text-gray-500 hidden lg:table-cell">
+                    {event.startDate || event.endDate ? (
+                      <span className="text-xs">
+                        {event.startDate
+                          ? new Date(event.startDate).toLocaleDateString()
+                          : "—"}
+                        {" → "}
+                        {event.endDate
+                          ? new Date(event.endDate).toLocaleDateString()
+                          : "—"}
+                      </span>
+                    ) : (
+                      <span className="text-gray-300 text-xs">
+                        No dates set
+                      </span>
+                    )}
                   </td>
 
                   {/* Creator */}
@@ -761,6 +810,34 @@ export default function ManageEventsPage() {
                             ? "Location name auto-updates when you drag/click on the map."
                             : "Auto location name is off. You can enter a custom location name."}
                       </p>
+                    </Field>
+                  </motion.div>
+
+                  {/* Start / End Date */}
+                  <motion.div
+                    variants={modalItemVariants}
+                    className="grid grid-cols-2 gap-3"
+                  >
+                    <Field label="Start Date (optional)" icon={CalendarDays}>
+                      <input
+                        type="date"
+                        value={form.startDate}
+                        onChange={(e) =>
+                          setForm((f) => ({ ...f, startDate: e.target.value }))
+                        }
+                        className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition"
+                      />
+                    </Field>
+                    <Field label="End Date (optional)" icon={CalendarDays}>
+                      <input
+                        type="date"
+                        value={form.endDate}
+                        min={form.startDate || undefined}
+                        onChange={(e) =>
+                          setForm((f) => ({ ...f, endDate: e.target.value }))
+                        }
+                        className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition"
+                      />
                     </Field>
                   </motion.div>
 

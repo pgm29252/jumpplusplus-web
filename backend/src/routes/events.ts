@@ -15,6 +15,8 @@ const createEventSchema = z.object({
   locationName: z.string().optional(),
   latitude: z.number().min(-90).max(90).optional(),
   longitude: z.number().min(-180).max(180).optional(),
+  startDate: z.string().datetime().optional(),
+  endDate: z.string().datetime().optional(),
   duration: z.number().int().positive().default(60),
   price: z.number().nonnegative().default(0),
   maxSlots: z.number().int().positive().default(1),
@@ -41,6 +43,8 @@ router.get(
         locationName: true,
         latitude: true,
         longitude: true,
+        startDate: true,
+        endDate: true,
         duration: true,
         price: true,
         maxSlots: true,
@@ -96,6 +100,8 @@ router.get("/", async (req: Request, res: Response) => {
       locationName: true,
       latitude: true,
       longitude: true,
+      startDate: true,
+      endDate: true,
       duration: true,
       price: true,
       maxSlots: true,
@@ -121,6 +127,8 @@ router.get("/:id", async (req: Request, res: Response) => {
       locationName: true,
       latitude: true,
       longitude: true,
+      startDate: true,
+      endDate: true,
       duration: true,
       price: true,
       maxSlots: true,
@@ -160,11 +168,17 @@ router.post(
       return;
     }
 
+    const eventData = {
+      ...parsed.data,
+      startDate: parsed.data.startDate
+        ? new Date(parsed.data.startDate)
+        : undefined,
+      endDate: parsed.data.endDate ? new Date(parsed.data.endDate) : undefined,
+      createdById: req.user!.sub,
+    };
+
     const event = await prisma.event.create({
-      data: {
-        ...parsed.data,
-        createdById: req.user!.sub,
-      },
+      data: eventData,
       select: {
         id: true,
         title: true,
@@ -172,6 +186,8 @@ router.post(
         locationName: true,
         latitude: true,
         longitude: true,
+        startDate: true,
+        endDate: true,
         duration: true,
         price: true,
         maxSlots: true,
@@ -223,9 +239,19 @@ router.patch(
       return;
     }
 
+    const updateData = {
+      ...parsed.data,
+      startDate: parsed.data.startDate
+        ? new Date(parsed.data.startDate)
+        : parsed.data.startDate,
+      endDate: parsed.data.endDate
+        ? new Date(parsed.data.endDate)
+        : parsed.data.endDate,
+    };
+
     const updated = await prisma.event.update({
       where: { id: eventId },
-      data: parsed.data,
+      data: updateData,
       select: {
         id: true,
         title: true,
@@ -233,6 +259,8 @@ router.patch(
         locationName: true,
         latitude: true,
         longitude: true,
+        startDate: true,
+        endDate: true,
         duration: true,
         price: true,
         maxSlots: true,

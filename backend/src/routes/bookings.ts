@@ -1,7 +1,11 @@
 import { Router, Request, Response } from "express";
 import { z } from "zod";
 import { prisma } from "../lib/prisma";
-import { authenticate, AuthenticatedRequest } from "../middleware/auth";
+import {
+  authenticate,
+  AuthenticatedRequest,
+  requireRole,
+} from "../middleware/auth";
 
 const router = Router();
 
@@ -37,6 +41,8 @@ router.get(
             locationName: true,
             latitude: true,
             longitude: true,
+            startDate: true,
+            endDate: true,
             duration: true,
             price: true,
             createdBy: { select: { name: true } },
@@ -75,6 +81,8 @@ router.get(
             locationName: true,
             latitude: true,
             longitude: true,
+            startDate: true,
+            endDate: true,
             duration: true,
             price: true,
           },
@@ -109,6 +117,8 @@ router.get(
             locationName: true,
             latitude: true,
             longitude: true,
+            startDate: true,
+            endDate: true,
             duration: true,
             price: true,
           },
@@ -154,7 +164,14 @@ router.post(
     // Get event details
     const event = await prisma.event.findUnique({
       where: { id: parsed.data.eventId },
-      select: { id: true, duration: true, maxSlots: true, isActive: true },
+      select: {
+        id: true,
+        duration: true,
+        maxSlots: true,
+        isActive: true,
+        startDate: true,
+        endDate: true,
+      },
     });
 
     if (!event || !event.isActive) {
@@ -166,6 +183,22 @@ router.post(
 
     const startTime = new Date(parsed.data.startTime);
     const endTime = new Date(startTime.getTime() + event.duration * 60000);
+
+    // Validate startTime is within the event's date range (if set)
+    if (event.startDate && startTime < event.startDate) {
+      res.status(400).json({
+        success: false,
+        message: `Booking must be on or after the event start date (${event.startDate.toISOString().split("T")[0]})`,
+      });
+      return;
+    }
+    if (event.endDate && startTime > event.endDate) {
+      res.status(400).json({
+        success: false,
+        message: `Booking must be on or before the event end date (${event.endDate.toISOString().split("T")[0]})`,
+      });
+      return;
+    }
 
     // Check for conflicting bookings
     const conflicting = await prisma.booking.count({
@@ -276,6 +309,62 @@ router.patch(
         status: true,
         startTime: true,
         event: { select: { title: true } },
+      },
+    });
+
+    res.json({ success: true, booking: updated });
+  },
+);
+
+// PATCH /api/bookings/:id/admin-cancel - Admin/Moderator cancel any booking
+router.patch(
+  "/:id/admin-cancel",
+  authenticate,
+  requireRole("ADMIN", "MODERATOR"),
+  async (req: AuthenticatedRequest, res: Response) => {
+    const bookingId = getRouteId(req.params.id);
+    const booking = await prisma.booking.findUnique({
+      where: { id: bookingId },
+      select: {
+        id: true,
+        status: true,
+        userId: true,
+        event: { select: { title: true } },
+        user: { select: { name: true } },
+      },
+    });
+
+    if (!booking) {
+      res.status(404).json({ success: false, message: "Booking not found" });
+      return;
+    }
+
+    if (booking.status === "CANCELLED") {
+      res
+        .status(400)
+        .json({ success: false, message: "Booking is already cancelled" });
+      return;
+    }
+
+    const updated = await prisma.booking.update({
+      where: { id: bookingId },
+      data: { status: "CANCELLED" },
+      select: {
+        id: true,
+        status: true,
+        startTime: true,
+        user: { select: { id: true, name: true, email: true } },
+        event: { select: { title: true } },
+      },
+    });
+
+    await prisma.auditLog.create({
+      data: {
+        userId: req.user!.sub,
+        action: "BOOKING_ADMIN_CANCELLED",
+        targetId: bookingId,
+        targetType: "BOOKING",
+        details: `Admin cancelled booking for ${booking.user?.name ?? "user"} on ${booking.event.title}`,
       },
     });
 

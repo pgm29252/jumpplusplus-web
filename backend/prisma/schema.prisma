@@ -66,6 +66,8 @@ model Event {
   locationName String?
   latitude    Float?
   longitude   Float?
+  startDate   DateTime?
+  endDate     DateTime?
   duration    Int      @default(60)
   price       Float    @default(0)
   maxSlots    Int      @default(1)
