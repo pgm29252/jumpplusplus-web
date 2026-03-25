@@ -42,8 +42,6 @@ function SignInContent() {
     setLoading(true);
     try {
       const user = await login(email, password);
-      // Also set cookie for middleware
-      document.cookie = `token=${localStorage.getItem("token")}; path=/; max-age=604800; SameSite=Lax`;
       router.push(redirectTo);
       void user;
     } catch (err: unknown) {

@@ -1,13 +1,19 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
-import { api, User } from "@/lib/api";
+import {
+  api,
+  User,
+  clearAuthToken,
+  getAuthToken,
+  setAuthToken,
+} from "@/lib/api";
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   const fetchMe = useCallback(async () => {
-    const token = localStorage.getItem("token");
+    const token = getAuthToken();
     if (!token) {
       setLoading(false);
       return;
@@ -16,7 +22,7 @@ export function useAuth() {
       const data = await api.auth.me();
       setUser(data.user);
     } catch {
-      localStorage.removeItem("token");
+      clearAuthToken();
       setUser(null);
     } finally {
       setLoading(false);
@@ -29,14 +35,14 @@ export function useAuth() {
 
   const login = async (email: string, password: string) => {
     const data = await api.auth.login({ email, password });
-    localStorage.setItem("token", data.token);
+    setAuthToken(data.token);
     setUser(data.user);
     return data.user;
   };
 
   const register = async (name: string, email: string, password: string) => {
     const data = await api.auth.register({ name, email, password });
-    localStorage.setItem("token", data.token);
+    setAuthToken(data.token);
     setUser(data.user);
     return data.user;
   };
@@ -45,7 +51,7 @@ export function useAuth() {
     try {
       await api.auth.logout();
     } finally {
-      localStorage.removeItem("token");
+      clearAuthToken();
       setUser(null);
     }
   };

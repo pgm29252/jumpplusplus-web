@@ -1,8 +1,61 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+const AUTH_COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 7;
+
+function readTokenFromCookie(): string | null {
+  if (typeof document === "undefined") return null;
+
+  const tokenCookie = document.cookie
+    .split(";")
+    .map((part) => part.trim())
+    .find((part) => part.startsWith("token="));
+
+  if (!tokenCookie) return null;
+
+  const raw = tokenCookie.slice("token=".length);
+  if (!raw) return null;
+
+  try {
+    return decodeURIComponent(raw);
+  } catch {
+    return raw;
+  }
+}
+
+export function setAuthToken(token: string) {
+  if (typeof window === "undefined") return;
+
+  localStorage.setItem("token", token);
+  document.cookie = `token=${encodeURIComponent(token)}; path=/; max-age=${AUTH_COOKIE_MAX_AGE_SECONDS}; SameSite=Lax`;
+}
+
+export function clearAuthToken() {
+  if (typeof window === "undefined") return;
+
+  localStorage.removeItem("token");
+  document.cookie = "token=; path=/; max-age=0; SameSite=Lax";
+}
+
+export function getAuthToken(): string | null {
+  if (typeof window === "undefined") return null;
+
+  const localToken = localStorage.getItem("token");
+  const cookieToken = readTokenFromCookie();
+
+  if (localToken && !cookieToken) {
+    document.cookie = `token=${encodeURIComponent(localToken)}; path=/; max-age=${AUTH_COOKIE_MAX_AGE_SECONDS}; SameSite=Lax`;
+    return localToken;
+  }
+
+  if (!localToken && cookieToken) {
+    localStorage.setItem("token", cookieToken);
+    return cookieToken;
+  }
+
+  return localToken || cookieToken;
+}
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
-  const token =
-    typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  const token = getAuthToken();
   const isFormData = options.body instanceof FormData;
 
   const res = await fetch(`${API_URL}${path}`, {

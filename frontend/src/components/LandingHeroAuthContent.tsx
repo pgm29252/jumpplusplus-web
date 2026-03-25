@@ -55,7 +55,7 @@ export default function LandingHeroAuthContent() {
       </p>
       <div className="flex flex-col sm:flex-row gap-4 justify-center">
         <Link
-          href="/auth/sign-up"
+          href="/auth/sign-up?force=1"
           className="group inline-flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-500 to-violet-600 text-white font-semibold text-base px-8 py-4 rounded-2xl hover:opacity-90 transition-all shadow-lg shadow-indigo-200"
         >
           Start for free

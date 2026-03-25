@@ -24,7 +24,6 @@ export default function LandingNavbar() {
     setLoggingOut(true);
     try {
       await logout();
-      document.cookie = "token=; path=/; max-age=0; SameSite=Lax";
     } finally {
       setLoggingOut(false);
     }
@@ -116,7 +115,7 @@ export default function LandingNavbar() {
                 Sign In
               </Link>
               <Link
-                href="/auth/sign-up"
+                href="/auth/sign-up?force=1"
                 className="text-sm font-semibold bg-gradient-to-r from-indigo-500 to-violet-600 text-white px-5 py-2.5 rounded-xl hover:opacity-90 transition-opacity shadow-sm"
               >
                 Get Started
@@ -206,7 +205,7 @@ export default function LandingNavbar() {
                     Sign In
                   </Link>
                   <Link
-                    href="/auth/sign-up"
+                    href="/auth/sign-up?force=1"
                     onClick={() => setMenuOpen(false)}
                     className="rounded-xl bg-gradient-to-r from-indigo-500 to-violet-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm"
                   >

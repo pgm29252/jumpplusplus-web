@@ -80,7 +80,6 @@ export default function DashboardLayout({
 
   const handleLogout = async () => {
     await logout();
-    document.cookie = "token=; path=/; max-age=0";
     router.push("/");
   };
 

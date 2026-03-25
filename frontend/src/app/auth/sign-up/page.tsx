@@ -63,7 +63,6 @@ export default function SignUpPage() {
     setLoading(true);
     try {
       const user = await register(name, email, password);
-      document.cookie = `token=${localStorage.getItem("token")}; path=/; max-age=604800; SameSite=Lax`;
       router.push("/dashboard");
       void user;
     } catch (err: unknown) {
