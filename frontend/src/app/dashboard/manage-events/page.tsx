@@ -24,6 +24,8 @@ import {
   Users,
   DollarSign,
   MapPin,
+  ImageIcon,
+  Upload,
 } from "lucide-react";
 
 const EventMapPicker = dynamic(() => import("@/components/EventMapPicker"), {
@@ -39,6 +41,8 @@ const EventMapPicker = dynamic(() => import("@/components/EventMapPicker"), {
 interface EventForm {
   title: string;
   description: string;
+  coverImageUrl: string;
+  previewImageUrlsText: string;
   locationName: string;
   latitude: number | "";
   longitude: number | "";
@@ -52,6 +56,8 @@ interface EventForm {
 const emptyForm: EventForm = {
   title: "",
   description: "",
+  coverImageUrl: "",
+  previewImageUrlsText: "",
   locationName: "",
   latitude: "",
   longitude: "",
@@ -90,6 +96,17 @@ function Field({
   );
 }
 
+function parsePreviewImageUrls(input: string) {
+  return Array.from(
+    new Set(
+      input
+        .split(/[\n,]/)
+        .map((item) => item.trim())
+        .filter(Boolean),
+    ),
+  );
+}
+
 // ──────────────────────────────────────────────
 // Main page
 // ──────────────────────────────────────────────
@@ -107,6 +124,11 @@ export default function ManageEventsPage() {
   const [form, setForm] = useState<EventForm>(emptyForm);
   const [autoLocationName, setAutoLocationName] = useState(true);
   const [formError, setFormError] = useState("");
+  const [imagePreviewError, setImagePreviewError] = useState(false);
+  const [coverUploadLoading, setCoverUploadLoading] = useState(false);
+  const [previewUploadLoading, setPreviewUploadLoading] = useState(false);
+  const [coverDragActive, setCoverDragActive] = useState(false);
+  const [previewDragActive, setPreviewDragActive] = useState(false);
   const [saveToast, setSaveToast] = useState<"idle" | "done" | "error">("idle");
   const [formLoading, setFormLoading] = useState(false);
   const [mapLookupLoading, setMapLookupLoading] = useState(false);
@@ -262,10 +284,72 @@ export default function ManageEventsPage() {
     );
   }, [autoLocationName, reverseGeocodeLocation]);
 
+  const uploadCoverImage = async (file: File) => {
+    setFormError("");
+    setCoverUploadLoading(true);
+    try {
+      const res = await api.uploads.uploadEventImages([file]);
+      const uploadedUrl = res.urls[0];
+      if (!uploadedUrl) throw new Error("Failed to upload cover image.");
+      setForm((current) => ({ ...current, coverImageUrl: uploadedUrl }));
+      setImagePreviewError(false);
+    } catch (err) {
+      setFormError(
+        err instanceof Error ? err.message : "Failed to load image.",
+      );
+    } finally {
+      setCoverUploadLoading(false);
+    }
+  };
+
+  const handleCoverImageUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    await uploadCoverImage(file);
+    e.target.value = "";
+  };
+
+  const uploadPreviewImages = async (files: File[]) => {
+    setFormError("");
+    setPreviewUploadLoading(true);
+    try {
+      const res = await api.uploads.uploadEventImages(files);
+      const uploaded = res.urls;
+      const merged = Array.from(
+        new Set([
+          ...parsePreviewImageUrls(form.previewImageUrlsText),
+          ...uploaded,
+        ]),
+      );
+      setForm((current) => ({
+        ...current,
+        previewImageUrlsText: merged.join("\n"),
+      }));
+    } catch (err) {
+      setFormError(
+        err instanceof Error ? err.message : "Failed to load preview images.",
+      );
+    } finally {
+      setPreviewUploadLoading(false);
+    }
+  };
+
+  const handlePreviewImagesUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const files = Array.from(e.target.files ?? []);
+    if (files.length === 0) return;
+    await uploadPreviewImages(files);
+    e.target.value = "";
+  };
+
   // ── Open create form ────────────────────────
   const openCreate = () => {
     setEditingEvent(null);
     setForm(emptyForm);
+    setImagePreviewError(false);
     setAutoLocationName(true);
     setFormError("");
     setFormOpen(true);
@@ -277,6 +361,8 @@ export default function ManageEventsPage() {
     setForm({
       title: event.title,
       description: event.description ?? "",
+      coverImageUrl: event.coverImageUrl ?? event.imageUrl ?? "",
+      previewImageUrlsText: (event.previewImageUrls ?? []).join("\n"),
       locationName: event.locationName ?? "",
       latitude: event.latitude ?? "",
       longitude: event.longitude ?? "",
@@ -290,6 +376,7 @@ export default function ManageEventsPage() {
       price: event.price,
       maxSlots: event.maxSlots,
     });
+    setImagePreviewError(false);
     setAutoLocationName(!(event.locationName ?? "").trim());
     setFormError("");
     setFormOpen(true);
@@ -316,6 +403,9 @@ export default function ManageEventsPage() {
         await api.events.update(editingEvent.id, {
           title: form.title.trim(),
           description: form.description.trim() || undefined,
+          imageUrl: form.coverImageUrl.trim() || undefined,
+          coverImageUrl: form.coverImageUrl.trim() || undefined,
+          previewImageUrls: parsePreviewImageUrls(form.previewImageUrlsText),
           locationName: form.locationName.trim() || undefined,
           latitude: form.latitude === "" ? undefined : Number(form.latitude),
           longitude: form.longitude === "" ? undefined : Number(form.longitude),
@@ -334,6 +424,9 @@ export default function ManageEventsPage() {
         await api.events.create({
           title: form.title.trim(),
           description: form.description.trim() || undefined,
+          imageUrl: form.coverImageUrl.trim() || undefined,
+          coverImageUrl: form.coverImageUrl.trim() || undefined,
+          previewImageUrls: parsePreviewImageUrls(form.previewImageUrlsText),
           locationName: form.locationName.trim() || undefined,
           latitude: form.latitude === "" ? undefined : Number(form.latitude),
           longitude: form.longitude === "" ? undefined : Number(form.longitude),
@@ -674,6 +767,171 @@ export default function ManageEventsPage() {
                         placeholder="Brief description of the event…"
                         className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition resize-none"
                       />
+                    </Field>
+                  </motion.div>
+
+                  <motion.div variants={modalItemVariants}>
+                    <Field label="Cover Image URL (optional)" icon={ImageIcon}>
+                      <input
+                        type="url"
+                        value={form.coverImageUrl}
+                        onChange={(e) =>
+                          setForm((f) => ({
+                            ...f,
+                            coverImageUrl: e.target.value,
+                          }))
+                        }
+                        placeholder="https://example.com/event-cover.jpg"
+                        className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition"
+                      />
+                      <label className="mt-2 inline-flex cursor-pointer items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50">
+                        {coverUploadLoading ? (
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        ) : (
+                          <Upload className="h-3.5 w-3.5" />
+                        )}
+                        {coverUploadLoading
+                          ? "Uploading..."
+                          : "Upload cover image"}
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={handleCoverImageUpload}
+                        />
+                      </label>
+                      <div
+                        className={`mt-2 rounded-lg border-2 border-dashed p-3 text-center text-xs transition-colors ${
+                          coverDragActive
+                            ? "border-indigo-400 bg-indigo-50 text-indigo-700"
+                            : "border-gray-200 bg-gray-50 text-gray-500"
+                        }`}
+                        onDragOver={(e) => {
+                          e.preventDefault();
+                          setCoverDragActive(true);
+                        }}
+                        onDragLeave={(e) => {
+                          e.preventDefault();
+                          setCoverDragActive(false);
+                        }}
+                        onDrop={(e) => {
+                          e.preventDefault();
+                          setCoverDragActive(false);
+                          const file = e.dataTransfer.files?.[0];
+                          if (file) {
+                            void uploadCoverImage(file);
+                          }
+                        }}
+                      >
+                        Drag and drop 1 cover image here
+                      </div>
+                      {form.coverImageUrl.trim() && (
+                        <div className="mt-2 overflow-hidden rounded-lg border border-gray-200 bg-gray-100">
+                          <img
+                            src={form.coverImageUrl}
+                            alt="Event cover preview"
+                            className="h-32 w-full object-cover"
+                            onError={() => setImagePreviewError(true)}
+                            onLoad={() => setImagePreviewError(false)}
+                          />
+                        </div>
+                      )}
+                      {imagePreviewError && (
+                        <p className="mt-2 text-xs text-rose-600">
+                          Cover image URL is invalid or unreachable.
+                        </p>
+                      )}
+                      <p className="mt-2 text-xs text-gray-500">
+                        Paste an image URL or upload a file from your device.
+                      </p>
+                    </Field>
+                  </motion.div>
+
+                  <motion.div variants={modalItemVariants}>
+                    <Field
+                      label="Preview Images (optional, one URL per line)"
+                      icon={ImageIcon}
+                    >
+                      <textarea
+                        rows={3}
+                        value={form.previewImageUrlsText}
+                        onChange={(e) =>
+                          setForm((f) => ({
+                            ...f,
+                            previewImageUrlsText: e.target.value,
+                          }))
+                        }
+                        placeholder={
+                          "https://example.com/preview-1.jpg\nhttps://example.com/preview-2.jpg"
+                        }
+                        className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition resize-none"
+                      />
+                      <label className="mt-2 inline-flex cursor-pointer items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50">
+                        {previewUploadLoading ? (
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        ) : (
+                          <Upload className="h-3.5 w-3.5" />
+                        )}
+                        {previewUploadLoading
+                          ? "Uploading..."
+                          : "Upload preview images"}
+                        <input
+                          type="file"
+                          accept="image/*"
+                          multiple
+                          className="hidden"
+                          onChange={handlePreviewImagesUpload}
+                        />
+                      </label>
+                      <div
+                        className={`mt-2 rounded-lg border-2 border-dashed p-3 text-center text-xs transition-colors ${
+                          previewDragActive
+                            ? "border-indigo-400 bg-indigo-50 text-indigo-700"
+                            : "border-gray-200 bg-gray-50 text-gray-500"
+                        }`}
+                        onDragOver={(e) => {
+                          e.preventDefault();
+                          setPreviewDragActive(true);
+                        }}
+                        onDragLeave={(e) => {
+                          e.preventDefault();
+                          setPreviewDragActive(false);
+                        }}
+                        onDrop={(e) => {
+                          e.preventDefault();
+                          setPreviewDragActive(false);
+                          const files = Array.from(e.dataTransfer.files ?? []);
+                          if (files.length > 0) {
+                            void uploadPreviewImages(files);
+                          }
+                        }}
+                      >
+                        Drag and drop multiple preview images here
+                      </div>
+                      {parsePreviewImageUrls(form.previewImageUrlsText).length >
+                        0 && (
+                        <div className="mt-2 grid grid-cols-3 gap-2">
+                          {parsePreviewImageUrls(form.previewImageUrlsText)
+                            .slice(0, 6)
+                            .map((url) => (
+                              <div
+                                key={url}
+                                className="overflow-hidden rounded-lg border border-gray-200 bg-gray-100"
+                              >
+                                <img
+                                  src={url}
+                                  alt="Event preview"
+                                  className="h-20 w-full object-cover"
+                                  loading="lazy"
+                                />
+                              </div>
+                            ))}
+                        </div>
+                      )}
+                      <p className="mt-2 text-xs text-gray-500">
+                        Paste one image URL per line, upload multiple files, or
+                        mix both.
+                      </p>
                     </Field>
                   </motion.div>
 

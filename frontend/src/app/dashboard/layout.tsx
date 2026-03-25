@@ -13,6 +13,7 @@ import {
   Calendar,
   BookOpen,
   Settings2,
+  Loader2,
 } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
@@ -49,7 +50,7 @@ export default function DashboardLayout({
 
   useEffect(() => {
     if (!loading && !user) {
-      router.push("/auth/sign-in");
+      router.replace("/auth/sign-in");
     }
   }, [user, loading, router]);
 
@@ -66,7 +67,16 @@ export default function DashboardLayout({
     );
   }
 
-  if (!user) return null;
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="w-6 h-6 animate-spin text-indigo-600" />
+          <p className="text-sm text-gray-500">Redirecting to sign in...</p>
+        </div>
+      </div>
+    );
+  }
 
   const handleLogout = async () => {
     await logout();

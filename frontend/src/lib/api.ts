@@ -3,11 +3,12 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const token =
     typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  const isFormData = options.body instanceof FormData;
 
   const res = await fetch(`${API_URL}${path}`, {
     ...options,
     headers: {
-      "Content-Type": "application/json",
+      ...(isFormData ? {} : { "Content-Type": "application/json" }),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...options.headers,
     },
@@ -61,6 +62,9 @@ export const api = {
     create: (body: {
       title: string;
       description?: string;
+      imageUrl?: string;
+      coverImageUrl?: string;
+      previewImageUrls?: string[];
       locationName?: string;
       latitude?: number;
       longitude?: number;
@@ -116,6 +120,19 @@ export const api = {
         { method: "PATCH" },
       ),
   },
+  uploads: {
+    uploadEventImages: (files: File[]) => {
+      const formData = new FormData();
+      files.forEach((file) => formData.append("images", file));
+      return request<{ success: boolean; urls: string[] }>(
+        "/api/uploads/events",
+        {
+          method: "POST",
+          body: formData,
+        },
+      );
+    },
+  },
 };
 
 export interface User {
@@ -140,6 +157,9 @@ export interface Event {
   id: string;
   title: string;
   description?: string;
+  imageUrl?: string;
+  coverImageUrl?: string;
+  previewImageUrls?: string[];
   locationName?: string;
   latitude?: number;
   longitude?: number;
@@ -167,6 +187,9 @@ export interface Booking {
   event: {
     id: string;
     title: string;
+    imageUrl?: string;
+    coverImageUrl?: string;
+    previewImageUrls?: string[];
     locationName?: string;
     latitude?: number;
     longitude?: number;

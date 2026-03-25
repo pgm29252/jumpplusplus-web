@@ -110,7 +110,7 @@ export default function LandingNavbar() {
           ) : (
             <>
               <Link
-                href="/auth/sign-in"
+                href="/auth/sign-in?force=1"
                 className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors px-4 py-2"
               >
                 Sign In
@@ -199,7 +199,7 @@ export default function LandingNavbar() {
               ) : (
                 <div className="grid grid-cols-2 gap-2">
                   <Link
-                    href="/auth/sign-in"
+                    href="/auth/sign-in?force=1"
                     onClick={() => setMenuOpen(false)}
                     className="rounded-xl border border-gray-200 px-3 py-2 text-center text-sm font-medium text-gray-700 hover:bg-gray-50"
                   >

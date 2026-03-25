@@ -63,6 +63,9 @@ model Event {
   id          String   @id @default(cuid())
   title       String
   description String?
+  imageUrl    String?
+  coverImageUrl String?
+  previewImageUrls String[] @default([])
   locationName String?
   latitude    Float?
   longitude   Float?

@@ -3,6 +3,7 @@ import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 import dotenv from "dotenv";
+import path from "path";
 
 dotenv.config();
 
@@ -10,11 +11,17 @@ import authRoutes from "./routes/auth";
 import userRoutes from "./routes/users";
 import eventRoutes from "./routes/events";
 import bookingRoutes from "./routes/bookings";
+import uploadRoutes from "./routes/uploads";
 
 const app = express();
 
 // Security
-app.use(helmet());
+app.use(
+  helmet({
+    // Needed so frontend on a different origin can render uploaded image URLs.
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+  }),
+);
 const allowedOrigins = [
   process.env.FRONTEND_URL || "http://localhost:3000",
   "http://localhost:3000",
@@ -43,6 +50,9 @@ if (process.env.NODE_ENV !== "test") {
   app.use(morgan("dev"));
 }
 
+// Static uploads
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
+
 // Health check
 app.get("/health", (_req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
@@ -53,8 +63,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/events", eventRoutes);
 app.use("/api/bookings", bookingRoutes);
-app.use("/api/events", eventRoutes);
-app.use("/api/bookings", bookingRoutes);
+app.use("/api/uploads", uploadRoutes);
 
 // 404 handler
 app.use((_req, res) => {

@@ -62,7 +62,7 @@ export default function LandingHeroAuthContent() {
           <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
         </Link>
         <Link
-          href="/auth/sign-in"
+          href="/auth/sign-in?force=1"
           className="inline-flex items-center justify-center gap-2 bg-gray-50 text-gray-700 font-semibold text-base px-8 py-4 rounded-2xl hover:bg-gray-100 transition-all border border-gray-200"
         >
           Sign in

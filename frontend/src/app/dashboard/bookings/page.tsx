@@ -300,6 +300,35 @@ function BookingsContent() {
                         : "border-gray-200 bg-white hover:border-gray-300"
                     }`}
                   >
+                    {(event.coverImageUrl || event.imageUrl) && (
+                      <div className="mb-4 overflow-hidden rounded-xl border border-gray-200 bg-gray-100">
+                        <img
+                          src={event.coverImageUrl || event.imageUrl}
+                          alt={`${event.title} preview`}
+                          className="h-40 w-full object-cover"
+                          loading="lazy"
+                        />
+                      </div>
+                    )}
+
+                    {(event.previewImageUrls?.length ?? 0) > 0 && (
+                      <div className="mb-4 grid grid-cols-4 gap-2">
+                        {event.previewImageUrls?.slice(0, 4).map((url) => (
+                          <div
+                            key={url}
+                            className="overflow-hidden rounded-lg border border-gray-200 bg-gray-100"
+                          >
+                            <img
+                              src={url}
+                              alt={`${event.title} preview thumbnail`}
+                              className="h-16 w-full object-cover"
+                              loading="lazy"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
                     <div className="flex items-start justify-between mb-3">
                       <div>
                         <h3 className="text-lg font-semibold text-gray-900">
@@ -363,6 +392,37 @@ function BookingsContent() {
                     <X className="w-5 h-5" />
                   </button>
                 </div>
+
+                {(selectedEvent.coverImageUrl || selectedEvent.imageUrl) && (
+                  <div className="mb-6 overflow-hidden rounded-xl border border-gray-200 bg-gray-100">
+                    <img
+                      src={
+                        selectedEvent.coverImageUrl || selectedEvent.imageUrl
+                      }
+                      alt={`${selectedEvent.title} preview`}
+                      className="h-40 w-full object-cover"
+                      loading="lazy"
+                    />
+                  </div>
+                )}
+
+                {(selectedEvent.previewImageUrls?.length ?? 0) > 0 && (
+                  <div className="mb-6 grid grid-cols-3 gap-2">
+                    {selectedEvent.previewImageUrls?.map((url) => (
+                      <div
+                        key={url}
+                        className="overflow-hidden rounded-lg border border-gray-200 bg-gray-100"
+                      >
+                        <img
+                          src={url}
+                          alt={`${selectedEvent.title} gallery image`}
+                          className="h-24 w-full object-cover"
+                          loading="lazy"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
 
                 {/* Calendar */}
                 <div className="mb-6">

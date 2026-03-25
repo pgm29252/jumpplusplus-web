@@ -1,4 +1,6 @@
 import { Router, Request, Response } from "express";
+import fs from "fs";
+import path from "path";
 import { z } from "zod";
 import { prisma } from "../lib/prisma";
 import {
@@ -9,9 +11,19 @@ import {
 
 const router = Router();
 
+const imageValueSchema = z.union([
+  z.string().url("Image URL must be valid"),
+  z
+    .string()
+    .regex(/^data:image\/[a-zA-Z0-9.+-]+;base64,/, "Image data must be valid"),
+]);
+
 const createEventSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().optional(),
+  imageUrl: imageValueSchema.optional(),
+  coverImageUrl: imageValueSchema.optional(),
+  previewImageUrls: z.array(imageValueSchema).optional(),
   locationName: z.string().optional(),
   latitude: z.number().min(-90).max(90).optional(),
   longitude: z.number().min(-180).max(180).optional(),
@@ -28,6 +40,30 @@ function getRouteId(id: string | string[]) {
   return Array.isArray(id) ? id[0] : id;
 }
 
+function getLocalUploadFilePath(url: string) {
+  try {
+    const parsed = new URL(url, "http://local");
+    if (!parsed.pathname.startsWith("/uploads/events/")) return null;
+    const fileName = decodeURIComponent(parsed.pathname.split("/").pop() ?? "");
+    if (!fileName) return null;
+    return path.join(process.cwd(), "uploads", "events", fileName);
+  } catch {
+    return null;
+  }
+}
+
+function deleteLocalUploadByUrl(url: string) {
+  const filePath = getLocalUploadFilePath(url);
+  if (!filePath) return;
+  try {
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
+  } catch {
+    // Ignore cleanup failures to avoid blocking event updates.
+  }
+}
+
 // GET /api/events/admin/all - List ALL events including inactive (Admin/Moderator only)
 router.get(
   "/admin/all",
@@ -40,6 +76,9 @@ router.get(
         id: true,
         title: true,
         description: true,
+        imageUrl: true,
+        coverImageUrl: true,
+        previewImageUrls: true,
         locationName: true,
         latitude: true,
         longitude: true,
@@ -69,6 +108,13 @@ router.patch(
     const eventId = getRouteId(req.params.id);
     const event = await prisma.event.findUnique({
       where: { id: eventId },
+      select: {
+        id: true,
+        createdById: true,
+        imageUrl: true,
+        coverImageUrl: true,
+        previewImageUrls: true,
+      },
     });
     if (!event) {
       res.status(404).json({ success: false, message: "Event not found" });
@@ -97,6 +143,9 @@ router.get("/", async (req: Request, res: Response) => {
       id: true,
       title: true,
       description: true,
+      imageUrl: true,
+      coverImageUrl: true,
+      previewImageUrls: true,
       locationName: true,
       latitude: true,
       longitude: true,
@@ -124,6 +173,9 @@ router.get("/:id", async (req: Request, res: Response) => {
       id: true,
       title: true,
       description: true,
+      imageUrl: true,
+      coverImageUrl: true,
+      previewImageUrls: true,
       locationName: true,
       latitude: true,
       longitude: true,
@@ -183,6 +235,9 @@ router.post(
         id: true,
         title: true,
         description: true,
+        imageUrl: true,
+        coverImageUrl: true,
+        previewImageUrls: true,
         locationName: true,
         latitude: true,
         longitude: true,
@@ -228,6 +283,13 @@ router.patch(
 
     const event = await prisma.event.findUnique({
       where: { id: eventId },
+      select: {
+        id: true,
+        createdById: true,
+        imageUrl: true,
+        coverImageUrl: true,
+        previewImageUrls: true,
+      },
     });
     if (!event) {
       res.status(404).json({ success: false, message: "Event not found" });
@@ -256,6 +318,9 @@ router.patch(
         id: true,
         title: true,
         description: true,
+        imageUrl: true,
+        coverImageUrl: true,
+        previewImageUrls: true,
         locationName: true,
         latitude: true,
         longitude: true,
@@ -266,6 +331,23 @@ router.patch(
         maxSlots: true,
       },
     });
+
+    const oldUrls = new Set<string>([
+      ...(event.coverImageUrl ? [event.coverImageUrl] : []),
+      ...(event.imageUrl ? [event.imageUrl] : []),
+      ...(event.previewImageUrls ?? []),
+    ]);
+    const newUrls = new Set<string>([
+      ...(updated.coverImageUrl ? [updated.coverImageUrl] : []),
+      ...(updated.imageUrl ? [updated.imageUrl] : []),
+      ...(updated.previewImageUrls ?? []),
+    ]);
+
+    for (const url of oldUrls) {
+      if (!newUrls.has(url)) {
+        deleteLocalUploadByUrl(url);
+      }
+    }
 
     res.json({ success: true, event: updated });
   },

@@ -17,6 +17,9 @@ export async function middleware(req: NextRequest) {
 
   // Redirect authenticated users away from auth pages
   if (AUTH_PATHS.includes(pathname)) {
+    const forceAuthPage = req.nextUrl.searchParams.get("force") === "1";
+    if (forceAuthPage) return NextResponse.next();
+
     const token = req.cookies.get("token")?.value;
 
     if (!token) return NextResponse.next();
