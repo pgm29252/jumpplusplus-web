@@ -1,6 +1,17 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Users, Shield, UserCheck, TrendingUp, Activity } from "lucide-react";
+import Link from "next/link";
+import {
+  Users,
+  Shield,
+  UserCheck,
+  TrendingUp,
+  Activity,
+  CalendarDays,
+  BookOpen,
+  Settings2,
+  ArrowRight,
+} from "lucide-react";
 import { api, User, UserStats } from "@/lib/api";
 import { useAuth } from "@/hooks/useAuth";
 import { formatDate, getRoleColor } from "@/lib/utils";
@@ -33,11 +44,51 @@ function StatCard({
   );
 }
 
+function SummaryChart({
+  items,
+}: {
+  items: Array<{ label: string; value: number; color: string; track: string }>;
+}) {
+  const max = Math.max(...items.map((item) => item.value), 1);
+
+  return (
+    <div className="bg-white rounded-2xl border border-gray-100 p-5">
+      <h3 className="text-sm font-bold text-gray-900 mb-4">Summary Chart</h3>
+      <div className="space-y-4">
+        {items.map((item) => {
+          const width = `${Math.max(8, (item.value / max) * 100)}%`;
+          return (
+            <div key={item.label}>
+              <div className="mb-1.5 flex items-center justify-between text-xs">
+                <span className="font-medium text-gray-600">{item.label}</span>
+                <span className="font-bold text-gray-900">{item.value}</span>
+              </div>
+              <div className={`h-2.5 w-full rounded-full ${item.track}`}>
+                <div
+                  className={`h-full rounded-full ${item.color} transition-all duration-500`}
+                  style={{ width }}
+                />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export default function DashboardPage() {
   const { user } = useAuth();
   const [stats, setStats] = useState<UserStats | null>(null);
   const [recentUsers, setRecentUsers] = useState<User[]>([]);
   const [loadingStats, setLoadingStats] = useState(false);
+  const [loadingSummary, setLoadingSummary] = useState(false);
+  const [summary, setSummary] = useState({
+    totalEvents: 0,
+    activeEvents: 0,
+    totalBookings: 0,
+    upcomingBookings: 0,
+  });
 
   useEffect(() => {
     if (user?.role === "ADMIN") {
@@ -52,9 +103,68 @@ export default function DashboardPage() {
     }
   }, [user]);
 
+  useEffect(() => {
+    if (!user) return;
+
+    setLoadingSummary(true);
+    const loadSummary = async () => {
+      try {
+        const [eventsRes, bookingsRes] =
+          user.role === "ADMIN" || user.role === "MODERATOR"
+            ? await Promise.all([api.events.listAll(), api.bookings.listAll()])
+            : await Promise.all([api.events.list(), api.bookings.list()]);
+
+        const now = new Date();
+        const totalEvents = eventsRes.events.length;
+        const activeEvents = eventsRes.events.filter(
+          (event) => event.isActive !== false,
+        ).length;
+        const totalBookings = bookingsRes.bookings.length;
+        const upcomingBookings = bookingsRes.bookings.filter(
+          (booking) =>
+            booking.status !== "CANCELLED" && new Date(booking.startTime) > now,
+        ).length;
+
+        setSummary({
+          totalEvents,
+          activeEvents,
+          totalBookings,
+          upcomingBookings,
+        });
+      } catch {
+        setSummary({
+          totalEvents: 0,
+          activeEvents: 0,
+          totalBookings: 0,
+          upcomingBookings: 0,
+        });
+      } finally {
+        setLoadingSummary(false);
+      }
+    };
+
+    void loadSummary();
+  }, [user]);
+
   const hour = new Date().getHours();
   const greeting =
     hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+
+  const quickLinks = [
+    { href: "/dashboard/bookings", label: "Book Event", show: true },
+    { href: "/dashboard/my-bookings", label: "My Bookings", show: true },
+    {
+      href: "/dashboard/manage-events",
+      label: "Manage Events",
+      show: user?.role === "ADMIN" || user?.role === "MODERATOR",
+    },
+    {
+      href: "/dashboard/manage-bookings",
+      label: "Manage Bookings",
+      show: user?.role === "ADMIN" || user?.role === "MODERATOR",
+    },
+    { href: "/dashboard/users", label: "Users", show: user?.role === "ADMIN" },
+  ].filter((item) => item.show);
 
   return (
     <div>
@@ -67,6 +177,115 @@ export default function DashboardPage() {
           Here&apos;s what&apos;s happening on your platform today.
         </p>
       </div>
+
+      {/* Section: Overview */}
+      <section className="mb-8">
+        <div className="mb-3 flex items-center gap-2">
+          <CalendarDays className="w-4 h-4 text-sky-600" />
+          <h2 className="text-lg font-bold text-gray-900">Overview Summary</h2>
+        </div>
+
+        {loadingSummary ? (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <div className="lg:col-span-2 grid grid-cols-2 lg:grid-cols-4 gap-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="bg-white rounded-2xl p-5 border border-gray-100 h-28 animate-pulse"
+                />
+              ))}
+            </div>
+            <div className="bg-white rounded-2xl p-5 border border-gray-100 h-64 animate-pulse" />
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <div className="lg:col-span-2 grid grid-cols-2 lg:grid-cols-4 gap-4">
+              <StatCard
+                icon={CalendarDays}
+                label="Total Events"
+                value={summary.totalEvents}
+                color="text-sky-600"
+                bg="bg-sky-50"
+              />
+              <StatCard
+                icon={Activity}
+                label="Active Events"
+                value={summary.activeEvents}
+                color="text-emerald-600"
+                bg="bg-emerald-50"
+              />
+              <StatCard
+                icon={BookOpen}
+                label={user?.role === "USER" ? "My Bookings" : "Total Bookings"}
+                value={summary.totalBookings}
+                color="text-indigo-600"
+                bg="bg-indigo-50"
+              />
+              <StatCard
+                icon={TrendingUp}
+                label="Upcoming Bookings"
+                value={summary.upcomingBookings}
+                color="text-amber-600"
+                bg="bg-amber-50"
+              />
+            </div>
+
+            <SummaryChart
+              items={[
+                {
+                  label: "Total Events",
+                  value: summary.totalEvents,
+                  color: "bg-sky-500",
+                  track: "bg-sky-100",
+                },
+                {
+                  label: "Active Events",
+                  value: summary.activeEvents,
+                  color: "bg-emerald-500",
+                  track: "bg-emerald-100",
+                },
+                {
+                  label:
+                    user?.role === "USER" ? "My Bookings" : "Total Bookings",
+                  value: summary.totalBookings,
+                  color: "bg-indigo-500",
+                  track: "bg-indigo-100",
+                },
+                {
+                  label: "Upcoming Bookings",
+                  value: summary.upcomingBookings,
+                  color: "bg-amber-500",
+                  track: "bg-amber-100",
+                },
+              ]}
+            />
+          </div>
+        )}
+      </section>
+
+      {/* Section: Other features */}
+      <section className="mb-8">
+        <div className="mb-3 flex items-center gap-2">
+          <Settings2 className="w-4 h-4 text-indigo-600" />
+          <h2 className="text-lg font-bold text-gray-900">Other Features</h2>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {quickLinks.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="group bg-white rounded-2xl border border-gray-100 px-4 py-3 hover:border-indigo-200 hover:shadow-sm transition-all"
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-semibold text-gray-800">
+                  {item.label}
+                </span>
+                <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-indigo-600 transition-colors" />
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
 
       {/* Stats — admin only */}
       {user?.role === "ADMIN" && (
