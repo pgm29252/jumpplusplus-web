@@ -1,9 +1,10 @@
 "use client";
-import { useState, FormEvent } from "react";
+import { useEffect, useState, FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff, Rocket, Loader2, CheckCircle2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import ToastNotice from "@/components/ui/ToastNotice";
 
 function PasswordStrength({ password }: { password: string }) {
   const checks = [
@@ -34,8 +35,27 @@ export default function SignUpPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const { register } = useAuth();
+  const { user, loading: authLoading, register } = useAuth();
   const router = useRouter();
+
+  useEffect(() => {
+    if (!authLoading && user) {
+      router.replace("/dashboard");
+    }
+  }, [authLoading, user, router]);
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-violet-50 flex items-center justify-center px-4">
+        <div className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm text-gray-500">
+          <Loader2 className="h-4 w-4 animate-spin" />
+          Checking session...
+        </div>
+      </div>
+    );
+  }
+
+  if (user) return null;
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -74,11 +94,6 @@ export default function SignUpPage() {
         </div>
 
         <div className="bg-white rounded-3xl shadow-xl shadow-gray-100 border border-gray-100 p-8">
-          {error && (
-            <div className="mb-4 bg-rose-50 border border-rose-100 text-rose-600 text-sm px-4 py-3 rounded-xl">
-              {error}
-            </div>
-          )}
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -177,6 +192,8 @@ export default function SignUpPage() {
           .
         </p>
       </div>
+
+      <ToastNotice open={Boolean(error)} tone="error" message={error} />
     </div>
   );
 }

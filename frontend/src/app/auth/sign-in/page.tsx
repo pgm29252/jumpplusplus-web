@@ -1,5 +1,5 @@
 "use client";
-import { Suspense, useState, FormEvent } from "react";
+import { Suspense, useEffect, useState, FormEvent } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Eye, EyeOff, Rocket, Loader2 } from "lucide-react";
@@ -12,10 +12,29 @@ function SignInContent() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+  const { user, loading: authLoading, login } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get("redirect") || "/dashboard";
+
+  useEffect(() => {
+    if (!authLoading && user) {
+      router.replace(redirectTo);
+    }
+  }, [authLoading, user, router, redirectTo]);
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-linear-to-br from-indigo-50 via-white to-violet-50 flex items-center justify-center px-4">
+        <div className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm text-gray-500">
+          <Loader2 className="h-4 w-4 animate-spin" />
+          Checking session...
+        </div>
+      </div>
+    );
+  }
+
+  if (user) return null;
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();

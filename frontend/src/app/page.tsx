@@ -1,6 +1,7 @@
 import Link from "next/link";
 import PublicEventsSection from "@/components/PublicEventsSection";
 import LandingNavbar from "@/components/LandingNavbar";
+import LandingHeroAuthContent from "@/components/LandingHeroAuthContent";
 import {
   ArrowRight,
   Zap,
@@ -141,28 +142,7 @@ export default function LandingPage() {
               Ship smarter.
             </span>
           </h1>
-          <p className="text-xl text-gray-500 max-w-2xl mx-auto mb-10">
-            A production-ready full-stack starter with authentication, role
-            management, and a beautiful dashboard.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              href="/auth/sign-up"
-              className="group inline-flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-500 to-violet-600 text-white font-semibold text-base px-8 py-4 rounded-2xl hover:opacity-90 transition-all shadow-lg shadow-indigo-200"
-            >
-              Start for free
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </Link>
-            <Link
-              href="/auth/sign-in"
-              className="inline-flex items-center justify-center gap-2 bg-gray-50 text-gray-700 font-semibold text-base px-8 py-4 rounded-2xl hover:bg-gray-100 transition-all border border-gray-200"
-            >
-              Sign in
-            </Link>
-          </div>
-          <p className="mt-6 text-sm text-gray-400">
-            No credit card required · Free forever on Starter plan
-          </p>
+          <LandingHeroAuthContent />
         </div>
 
         {/* Dashboard preview */}
