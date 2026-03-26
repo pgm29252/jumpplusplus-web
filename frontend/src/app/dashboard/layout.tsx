@@ -2,12 +2,12 @@
 import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   LayoutDashboard,
   Users,
   LogOut,
   Rocket,
-  Menu,
   X,
   ChevronRight,
   Calendar,
@@ -20,23 +20,53 @@ import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { href: "/dashboard", label: "Overview", icon: LayoutDashboard, exact: true },
-  { href: "/dashboard/users", label: "Users", icon: Users, adminOnly: true },
+  {
+    href: "/dashboard",
+    label: "Overview",
+    icon: LayoutDashboard,
+    exact: true,
+    group: "general",
+  },
+  {
+    href: "/dashboard/users",
+    label: "Users",
+    icon: Users,
+    adminOnly: true,
+    group: "management",
+  },
   {
     href: "/dashboard/manage-events",
     label: "Manage Events",
     icon: Settings2,
     staffOnly: true,
+    group: "management",
   },
   {
     href: "/dashboard/manage-bookings",
     label: "Manage Bookings",
     icon: Calendar,
     staffOnly: true,
+    group: "management",
   },
-  { href: "/dashboard/bookings", label: "Book Event", icon: Calendar },
-  { href: "/dashboard/my-bookings", label: "My Bookings", icon: BookOpen },
+  {
+    href: "/dashboard/bookings",
+    label: "Book Event",
+    icon: Calendar,
+    group: "bookings",
+  },
+  {
+    href: "/dashboard/my-bookings",
+    label: "My Bookings",
+    icon: BookOpen,
+    group: "bookings",
+  },
 ];
+
+const navGroups = [
+  { id: "general", label: "General" },
+  { id: "management", label: "Management" },
+  { id: "bookings", label: "Bookings" },
+] as const;
 
 export default function DashboardLayout({
   children,
@@ -90,6 +120,13 @@ export default function DashboardLayout({
     return true;
   });
 
+  const navByGroup = navGroups
+    .map((group) => ({
+      ...group,
+      items: filteredNav.filter((item) => item.group === group.id),
+    }))
+    .filter((group) => group.items.length > 0);
+
   const Sidebar = () => (
     <div className="flex flex-col h-full">
       {/* Logo */}
@@ -103,31 +140,42 @@ export default function DashboardLayout({
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 px-4 py-6 space-y-1">
-        {filteredNav.map((item) => {
-          const active = item.exact
-            ? pathname === item.href
-            : pathname.startsWith(item.href);
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={() => setSidebarOpen(false)}
-              className={cn(
-                "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
-                active
-                  ? "bg-indigo-50 text-indigo-700"
-                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900",
-              )}
-            >
-              <item.icon className="w-4 h-4 flex-shrink-0" />
-              {item.label}
-              {active && (
-                <ChevronRight className="w-3 h-3 ml-auto text-indigo-400" />
-              )}
-            </Link>
-          );
-        })}
+      <nav className="flex-1 overflow-y-auto px-4 py-6">
+        <div className="space-y-5">
+          {navByGroup.map((group) => (
+            <section key={group.id}>
+              <p className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+                {group.label}
+              </p>
+              <div className="space-y-1">
+                {group.items.map((item) => {
+                  const active = item.exact
+                    ? pathname === item.href
+                    : pathname.startsWith(item.href);
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={() => setSidebarOpen(false)}
+                      className={cn(
+                        "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
+                        active
+                          ? "bg-indigo-50 text-indigo-700"
+                          : "text-gray-600 hover:bg-gray-50 hover:text-gray-900",
+                      )}
+                    >
+                      <item.icon className="w-4 h-4 flex-shrink-0" />
+                      {item.label}
+                      {active && (
+                        <ChevronRight className="ml-auto h-3 w-3 text-indigo-400" />
+                      )}
+                    </Link>
+                  );
+                })}
+              </div>
+            </section>
+          ))}
+        </div>
       </nav>
 
       {/* User */}
@@ -162,33 +210,67 @@ export default function DashboardLayout({
       </aside>
 
       {/* Mobile sidebar overlay */}
-      {sidebarOpen && (
-        <div className="fixed inset-0 z-40 lg:hidden">
-          <div
-            className="absolute inset-0 bg-black/20 backdrop-blur-sm"
-            onClick={() => setSidebarOpen(false)}
-          />
-          <aside className="absolute left-0 top-0 bottom-0 w-64 bg-white shadow-xl z-50">
-            <button
+      <AnimatePresence>
+        {sidebarOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-40 lg:hidden"
+          >
+            <motion.div
+              className="absolute inset-0 bg-black/25 backdrop-blur-sm"
               onClick={() => setSidebarOpen(false)}
-              className="absolute top-4 right-4 p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+            />
+            <motion.aside
+              initial={{ x: -32, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: -32, opacity: 0 }}
+              transition={{ duration: 0.25, ease: "easeOut" }}
+              className="absolute bottom-0 left-0 top-0 z-50 w-72 bg-white shadow-xl"
             >
-              <X className="w-5 h-5" />
-            </button>
-            <Sidebar />
-          </aside>
-        </div>
-      )}
+              <button
+                onClick={() => setSidebarOpen(false)}
+                className="absolute right-4 top-4 rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+              >
+                <X className="h-5 w-5" />
+              </button>
+              <Sidebar />
+            </motion.aside>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Main content */}
       <main className="flex-1 lg:ml-64 min-h-screen">
         {/* Mobile top bar */}
         <div className="lg:hidden flex items-center justify-between bg-white border-b border-gray-100 px-4 py-3">
           <button
-            onClick={() => setSidebarOpen(true)}
-            className="p-2 rounded-lg hover:bg-gray-100 text-gray-600"
+            onClick={() => setSidebarOpen((prev) => !prev)}
+            className="group flex h-9 w-9 items-center justify-center rounded-lg text-gray-600 transition-colors hover:bg-gray-100"
+            aria-label={sidebarOpen ? "Close menu" : "Open menu"}
           >
-            <Menu className="w-5 h-5" />
+            <span className="relative block h-4 w-5">
+              <span
+                className={cn(
+                  "absolute left-0 top-0.5 block h-0.5 w-5 origin-center rounded-full bg-current transition-all duration-200",
+                  sidebarOpen && "top-[7px] rotate-45",
+                )}
+              />
+              <span
+                className={cn(
+                  "absolute left-0 top-[7px] block h-0.5 w-5 rounded-full bg-current transition-all duration-200",
+                  sidebarOpen && "opacity-0",
+                )}
+              />
+              <span
+                className={cn(
+                  "absolute left-0 top-[13px] block h-0.5 w-5 origin-center rounded-full bg-current transition-all duration-200",
+                  sidebarOpen && "top-[7px] -rotate-45",
+                )}
+              />
+            </span>
           </button>
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center">
