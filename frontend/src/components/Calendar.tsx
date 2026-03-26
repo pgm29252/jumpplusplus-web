@@ -89,14 +89,14 @@ export default function Calendar({
   };
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-4">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="font-semibold text-gray-900">{monthName}</h3>
+    <div className="min-h-[560px] rounded-2xl border border-gray-200 bg-white p-5 lg:p-6">
+      <div className="mb-6 flex items-center justify-between">
+        <h3 className="text-lg font-semibold text-gray-900">{monthName}</h3>
         <div className="flex gap-2">
           <button
             type="button"
             onClick={prevMonth}
-            className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
+            className="rounded-lg p-2 transition-colors hover:bg-gray-100"
             aria-label="Previous month"
           >
             <ChevronLeft className="w-5 h-5" />
@@ -104,7 +104,7 @@ export default function Calendar({
           <button
             type="button"
             onClick={nextMonth}
-            className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
+            className="rounded-lg p-2 transition-colors hover:bg-gray-100"
             aria-label="Next month"
           >
             <ChevronRight className="w-5 h-5" />
@@ -112,18 +112,18 @@ export default function Calendar({
         </div>
       </div>
 
-      <div className="grid grid-cols-7 gap-2 mb-2">
+      <div className="mb-3 grid grid-cols-7 gap-2">
         {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
           <div
             key={day}
-            className="text-center text-xs font-semibold text-gray-600"
+            className="py-2 text-center text-xs font-semibold uppercase tracking-wide text-gray-500"
           >
             {day}
           </div>
         ))}
       </div>
 
-      <div className="grid grid-cols-7 gap-1">
+      <div className="grid grid-cols-7 gap-2">
         {emptyDays.map((_, i) => (
           <div key={`empty-${i}`} />
         ))}
@@ -136,7 +136,7 @@ export default function Calendar({
               key={day}
               onClick={() => !disabled && handleDayClick(day)}
               disabled={disabled}
-              className={`relative flex h-9 w-full items-center justify-center rounded-lg text-sm font-medium transition-all
+              className={`relative flex h-12 w-full items-center justify-center rounded-xl text-sm font-medium transition-all lg:h-16
                 ${
                   selected
                     ? "bg-indigo-600 text-white shadow-md shadow-indigo-200 scale-105"
@@ -149,7 +149,7 @@ export default function Calendar({
             >
               {day}
               {today && !selected && (
-                <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-indigo-500" />
+                <span className="absolute bottom-1 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full bg-indigo-500" />
               )}
             </button>
           );
