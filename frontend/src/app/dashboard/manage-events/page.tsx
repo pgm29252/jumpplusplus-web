@@ -481,10 +481,13 @@ export default function ManageEventsPage() {
 
   // ──────────────────────────────────────────────
   return (
-    <div className="p-6 max-w-6xl mx-auto">
+    <div className="brand-surface mx-auto max-w-6xl p-6">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="brand-glass mb-6 flex items-center justify-between rounded-3xl px-6 py-5">
         <div>
+          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700/80">
+            Event Control Center
+          </p>
           <h1 className="text-2xl font-bold text-gray-900">Manage Events</h1>
           <p className="text-sm text-gray-500 mt-0.5">
             Create, edit, and manage bookable events.
@@ -492,7 +495,7 @@ export default function ManageEventsPage() {
         </div>
         <button
           onClick={openCreate}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 transition-colors"
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-700 transition-colors"
         >
           <Plus className="w-4 h-4" />
           New Event
@@ -531,10 +534,10 @@ export default function ManageEventsPage() {
 
       {/* Events table */}
       {!fetching && events.length > 0 && (
-        <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+        <div className="brand-glass overflow-hidden rounded-2xl shadow-sm">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-100 bg-gray-50">
+              <tr className="border-b border-emerald-100 bg-white/70">
                 <th className="px-4 py-3 text-left font-semibold text-gray-600">
                   Event
                 </th>
@@ -565,7 +568,7 @@ export default function ManageEventsPage() {
               {events.map((event) => (
                 <tr
                   key={event.id}
-                  className="hover:bg-gray-50 transition-colors"
+                  className="transition-colors hover:bg-white/70"
                 >
                   {/* Title + description */}
                   <td className="px-4 py-4">
@@ -641,7 +644,7 @@ export default function ManageEventsPage() {
                         <button
                           onClick={() => openEdit(event)}
                           title="Edit event"
-                          className="p-1.5 rounded-lg text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors"
+                          className="p-1.5 rounded-lg text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 transition-colors"
                         >
                           <Pencil className="w-4 h-4" />
                         </button>
@@ -701,12 +704,12 @@ export default function ManageEventsPage() {
             />
 
             <motion.div
-              className="relative flex w-full max-w-lg max-h-[90vh] flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-xl"
+              className="brand-glass-strong relative flex w-full max-w-lg max-h-[90vh] flex-col overflow-hidden rounded-2xl shadow-xl"
               variants={modalContainerVariants}
             >
               {/* Header */}
               <motion.div
-                className="sticky top-0 z-10 flex items-center justify-between border-b border-gray-100 bg-white px-6 py-4"
+                className="sticky top-0 z-10 flex items-center justify-between border-b border-emerald-100 bg-white/80 px-6 py-4 backdrop-blur-sm"
                 variants={modalItemVariants}
               >
                 <h2 className="text-lg font-bold text-gray-900">
@@ -746,7 +749,7 @@ export default function ManageEventsPage() {
                           setForm((f) => ({ ...f, title: e.target.value }))
                         }
                         placeholder="e.g. Open Jump Session"
-                        className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition"
+                        className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition"
                         required
                       />
                     </Field>
@@ -765,7 +768,7 @@ export default function ManageEventsPage() {
                           }))
                         }
                         placeholder="Brief description of the event…"
-                        className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition resize-none"
+                        className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition resize-none"
                       />
                     </Field>
                   </motion.div>
@@ -782,7 +785,7 @@ export default function ManageEventsPage() {
                           }))
                         }
                         placeholder="https://example.com/event-cover.jpg"
-                        className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition"
+                        className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition"
                       />
                       <label className="mt-2 inline-flex cursor-pointer items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50">
                         {coverUploadLoading ? (
@@ -803,7 +806,7 @@ export default function ManageEventsPage() {
                       <div
                         className={`mt-2 rounded-lg border-2 border-dashed p-3 text-center text-xs transition-colors ${
                           coverDragActive
-                            ? "border-indigo-400 bg-indigo-50 text-indigo-700"
+                            ? "border-emerald-400 bg-emerald-50 text-emerald-700"
                             : "border-gray-200 bg-gray-50 text-gray-500"
                         }`}
                         onDragOver={(e) => {
@@ -864,7 +867,7 @@ export default function ManageEventsPage() {
                         placeholder={
                           "https://example.com/preview-1.jpg\nhttps://example.com/preview-2.jpg"
                         }
-                        className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition resize-none"
+                        className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition resize-none"
                       />
                       <label className="mt-2 inline-flex cursor-pointer items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50">
                         {previewUploadLoading ? (
@@ -886,7 +889,7 @@ export default function ManageEventsPage() {
                       <div
                         className={`mt-2 rounded-lg border-2 border-dashed p-3 text-center text-xs transition-colors ${
                           previewDragActive
-                            ? "border-indigo-400 bg-indigo-50 text-indigo-700"
+                            ? "border-emerald-400 bg-emerald-50 text-emerald-700"
                             : "border-gray-200 bg-gray-50 text-gray-500"
                         }`}
                         onDragOver={(e) => {
@@ -951,12 +954,12 @@ export default function ManageEventsPage() {
                           if (autoLocationName) setAutoLocationName(false);
                         }}
                         placeholder="e.g. Mlimani Arena"
-                        className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition"
+                        className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition"
                       />
                       <label className="mt-2 inline-flex items-center gap-2 text-xs text-gray-600">
                         <input
                           type="checkbox"
-                          className="h-3.5 w-3.5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                          className="h-3.5 w-3.5 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
                           checked={autoLocationName}
                           onChange={(e) => {
                             const enabled = e.target.checked;
@@ -993,7 +996,7 @@ export default function ManageEventsPage() {
                                 : Number(e.target.value),
                           }))
                         }
-                        className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition"
+                        className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition"
                       />
                     </Field>
 
@@ -1013,7 +1016,7 @@ export default function ManageEventsPage() {
                                 : Number(e.target.value),
                           }))
                         }
-                        className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition"
+                        className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition"
                       />
                     </Field>
                   </motion.div>
@@ -1083,7 +1086,7 @@ export default function ManageEventsPage() {
                         onChange={(e) =>
                           setForm((f) => ({ ...f, startDate: e.target.value }))
                         }
-                        className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition"
+                        className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition"
                       />
                     </Field>
                     <Field label="End Date (optional)" icon={CalendarDays}>
@@ -1094,7 +1097,7 @@ export default function ManageEventsPage() {
                         onChange={(e) =>
                           setForm((f) => ({ ...f, endDate: e.target.value }))
                         }
-                        className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition"
+                        className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition"
                       />
                     </Field>
                   </motion.div>
@@ -1118,7 +1121,7 @@ export default function ManageEventsPage() {
                             ),
                           }))
                         }
-                        className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition"
+                        className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition"
                       />
                     </Field>
 
@@ -1134,7 +1137,7 @@ export default function ManageEventsPage() {
                             price: Math.max(0, parseFloat(e.target.value) || 0),
                           }))
                         }
-                        className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition"
+                        className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition"
                       />
                     </Field>
 
@@ -1152,7 +1155,7 @@ export default function ManageEventsPage() {
                             ),
                           }))
                         }
-                        className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition"
+                        className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition"
                       />
                     </Field>
                   </motion.div>
@@ -1160,7 +1163,7 @@ export default function ManageEventsPage() {
 
                 <motion.div
                   variants={modalItemVariants}
-                  className="sticky bottom-0 z-10 flex justify-end gap-2 border-t border-gray-100 bg-white px-6 py-4"
+                  className="sticky bottom-0 z-10 flex justify-end gap-2 border-t border-emerald-100 bg-white/70 px-6 py-4 backdrop-blur-sm"
                 >
                   <button
                     type="button"
@@ -1175,7 +1178,7 @@ export default function ManageEventsPage() {
                   <button
                     type="submit"
                     disabled={formLoading}
-                    className="flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-indigo-700 disabled:opacity-60"
+                    className="flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700 disabled:opacity-60"
                   >
                     {formLoading && (
                       <Loader2 className="w-4 h-4 animate-spin" />

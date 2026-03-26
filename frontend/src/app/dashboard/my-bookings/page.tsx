@@ -173,7 +173,7 @@ export default function MyBookingsPage() {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="flex flex-col items-center gap-3">
-          <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />
+          <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
           <p className="text-gray-600">Loading bookings...</p>
         </div>
       </div>
@@ -181,20 +181,23 @@ export default function MyBookingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="brand-surface min-h-screen p-6">
       <div className="max-w-5xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
+        <div className="brand-glass mb-8 rounded-3xl px-6 py-5">
+          <div className="mb-4 flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-extrabold text-gray-900 mb-2">
+              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700/80">
+                Booking Overview
+              </p>
+              <h1 className="mb-2 text-3xl font-extrabold text-gray-900">
                 My Bookings
               </h1>
               <p className="text-gray-600">Manage your event bookings</p>
             </div>
             <Link
               href="/dashboard/bookings"
-              className="px-4 py-2 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition-colors"
+              className="rounded-lg bg-linear-to-r from-emerald-700 to-teal-600 px-4 py-2 font-semibold text-white transition-opacity hover:opacity-90"
             >
               Book New Event
             </Link>
@@ -208,12 +211,12 @@ export default function MyBookingsPage() {
         )}
 
         {bookings.length === 0 ? (
-          <div className="text-center py-12 bg-white rounded-xl border border-gray-200">
+          <div className="brand-glass text-center py-12 rounded-xl">
             <Calendar className="w-12 h-12 mx-auto text-gray-400 mb-3" />
             <p className="text-gray-600 mb-4">No bookings yet</p>
             <Link
               href="/dashboard/bookings"
-              className="inline-block px-4 py-2 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition-colors"
+              className="inline-block px-4 py-2 bg-emerald-600 text-white font-semibold rounded-lg hover:bg-emerald-700 transition-colors"
             >
               Book Your First Event
             </Link>
@@ -226,11 +229,11 @@ export default function MyBookingsPage() {
                 <h2 className="text-xl font-bold text-gray-900 mb-4">
                   Upcoming Bookings
                 </h2>
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {upcomingBookings.map((booking) => (
                     <div
                       key={booking.id}
-                      className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-md transition-shadow"
+                      className="brand-glass rounded-2xl p-6 transition-all hover:-translate-y-0.5 hover:shadow-md"
                     >
                       <div className="flex items-start justify-between mb-4">
                         <div>
@@ -285,7 +288,7 @@ export default function MyBookingsPage() {
                             setCopiedCoords("idle");
                             setMapBooking(booking);
                           }}
-                          className="flex items-center gap-2 text-indigo-600 hover:text-indigo-700 font-medium text-sm"
+                          className="flex items-center gap-2 text-emerald-600 hover:text-emerald-700 font-medium text-sm"
                         >
                           <MapPinned className="w-4 h-4" />
                           View Map
@@ -324,11 +327,11 @@ export default function MyBookingsPage() {
                 <h2 className="text-xl font-bold text-gray-900 mb-4">
                   Past Bookings
                 </h2>
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {pastBookings.map((booking) => (
                     <div
                       key={booking.id}
-                      className="bg-gray-50 rounded-xl border border-gray-200 p-6 opacity-75"
+                      className="rounded-2xl border border-emerald-100/70 bg-white/60 p-6 backdrop-blur-sm"
                     >
                       <div className="flex items-start justify-between mb-4">
                         <div>
@@ -364,7 +367,7 @@ export default function MyBookingsPage() {
                             setCopiedCoords("idle");
                             setMapBooking(booking);
                           }}
-                          className="flex items-center gap-2 text-indigo-600 hover:text-indigo-700 font-medium"
+                          className="flex items-center gap-2 text-emerald-600 hover:text-emerald-700 font-medium"
                         >
                           <MapPinned className="w-4 h-4" />
                           View Map
@@ -382,11 +385,11 @@ export default function MyBookingsPage() {
                 <h2 className="text-xl font-bold text-gray-900 mb-4">
                   Cancelled Bookings
                 </h2>
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {cancelledBookings.map((booking) => (
                     <div
                       key={booking.id}
-                      className="bg-red-50 rounded-xl border border-red-200 p-6 opacity-60"
+                      className="rounded-2xl border border-rose-200 bg-rose-50/75 p-6 backdrop-blur-sm"
                     >
                       <div className="flex items-start justify-between">
                         <div>
@@ -402,7 +405,7 @@ export default function MyBookingsPage() {
                               setCopiedCoords("idle");
                               setMapBooking(booking);
                             }}
-                            className="mt-2 inline-flex items-center gap-2 text-indigo-600 hover:text-indigo-700 font-medium text-sm"
+                            className="mt-2 inline-flex items-center gap-2 text-emerald-600 hover:text-emerald-700 font-medium text-sm"
                           >
                             <MapPinned className="w-4 h-4" />
                             View Map
@@ -439,9 +442,9 @@ export default function MyBookingsPage() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 12, scale: 0.98 }}
               transition={{ duration: 0.2, ease: "easeOut" }}
-              className="relative z-10 w-full max-w-2xl overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl"
+              className="brand-glass-strong relative z-10 w-full max-w-2xl overflow-hidden rounded-2xl border border-emerald-100 shadow-2xl"
             >
-              <div className="flex items-start justify-between border-b border-gray-100 px-4 py-3">
+              <div className="flex items-start justify-between border-b border-emerald-100 bg-white/80 px-4 py-3 backdrop-blur-sm">
                 <div>
                   <h3 className="text-base font-semibold text-gray-900">
                     {mapBooking.event.title}
@@ -458,7 +461,7 @@ export default function MyBookingsPage() {
                 </div>
                 <button
                   onClick={() => setMapBooking(null)}
-                  className="rounded-lg p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+                  className="rounded-lg p-1.5 text-gray-500 hover:bg-emerald-50 hover:text-gray-700"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -471,19 +474,19 @@ export default function MyBookingsPage() {
                   className="h-80 w-full"
                 />
               ) : (
-                <div className="flex h-80 items-center justify-center bg-gray-50 px-6 text-center text-sm text-gray-600">
+                <div className="flex h-80 items-center justify-center bg-white/70 px-6 text-center text-sm text-gray-600">
                   Exact coordinates are not available for this event yet. You
                   can still open a search map view.
                 </div>
               )}
 
-              <div className="flex flex-wrap items-center justify-end gap-2 border-t border-gray-100 px-4 py-3">
+              <div className="flex flex-wrap items-center justify-end gap-2 border-t border-emerald-100 bg-white/70 px-4 py-3">
                 {getCoordinatesText(mapBooking) && (
                   <button
                     type="button"
                     onClick={() => handleCopyCoordinates(mapBooking)}
                     disabled={copiedCoords !== "idle"}
-                    className="rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
+                    className="rounded-lg border border-emerald-100 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {copiedCoords === "done"
                       ? "Copied"
@@ -494,7 +497,7 @@ export default function MyBookingsPage() {
                 )}
                 <button
                   onClick={() => setMapBooking(null)}
-                  className="rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100"
+                  className="rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:bg-emerald-50"
                 >
                   Close
                 </button>
@@ -502,7 +505,7 @@ export default function MyBookingsPage() {
                   href={getMapUrl(mapBooking)}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-indigo-600 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-700"
                 >
                   <ExternalLink className="h-3.5 w-3.5" />
                   Open in OSM

@@ -2,6 +2,7 @@ import Link from "next/link";
 import PublicEventsSection from "@/components/PublicEventsSection";
 import LandingNavbar from "@/components/LandingNavbar";
 import LandingHeroAuthContent from "@/components/LandingHeroAuthContent";
+import BrandLogo from "@/components/BrandLogo";
 import {
   ArrowRight,
   Zap,
@@ -12,7 +13,6 @@ import {
   Star,
   Globe,
   Lock,
-  Rocket,
 } from "lucide-react";
 
 const features = [
@@ -20,15 +20,15 @@ const features = [
     icon: Shield,
     title: "Enterprise Security",
     desc: "Role-based access control with JWT authentication and encrypted passwords.",
-    color: "text-indigo-500",
-    bg: "bg-indigo-50",
+    color: "text-emerald-500",
+    bg: "bg-emerald-50",
   },
   {
     icon: Users,
     title: "User Management",
     desc: "Full CRUD for users with role assignment: Admin, Moderator, or User.",
-    color: "text-violet-500",
-    bg: "bg-violet-50",
+    color: "text-teal-500",
+    bg: "bg-teal-50",
   },
   {
     icon: BarChart3,
@@ -123,22 +123,22 @@ const plans = [
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-white text-gray-900">
+    <div className="brand-surface min-h-screen text-gray-900">
       <LandingNavbar />
 
       {/* HERO */}
       <section className="pt-32 pb-24 px-6 relative overflow-hidden">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-gradient-to-b from-indigo-50 to-transparent rounded-full blur-3xl opacity-60 pointer-events-none" />
-        <div className="absolute top-20 left-10 w-72 h-72 bg-violet-100 rounded-full blur-3xl opacity-40 pointer-events-none" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-gradient-to-b from-emerald-50 to-transparent rounded-full blur-3xl opacity-60 pointer-events-none" />
+        <div className="absolute top-20 left-10 w-72 h-72 bg-teal-100 rounded-full blur-3xl opacity-40 pointer-events-none" />
         <div className="absolute top-20 right-10 w-72 h-72 bg-sky-100 rounded-full blur-3xl opacity-40 pointer-events-none" />
         <div className="relative max-w-4xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 bg-indigo-50 text-indigo-700 text-sm font-medium px-4 py-2 rounded-full mb-8 border border-indigo-100">
+          <div className="inline-flex items-center gap-2 bg-emerald-50 text-emerald-700 text-sm font-medium px-4 py-2 rounded-full mb-8 border border-emerald-100">
             <Zap className="w-3.5 h-3.5" />
             Next.js 15 · Node.js Express · PostgreSQL
           </div>
           <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight leading-none mb-6">
             Build faster.{" "}
-            <span className="bg-gradient-to-r from-indigo-500 via-violet-500 to-purple-600 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-emerald-500 via-teal-500 to-teal-700 bg-clip-text text-transparent">
               Ship smarter.
             </span>
           </h1>
@@ -147,9 +147,9 @@ export default function LandingPage() {
 
         {/* Dashboard preview */}
         <div className="relative max-w-5xl mx-auto mt-20">
-          <div className="bg-gradient-to-br from-indigo-500 to-violet-600 rounded-3xl p-1 shadow-2xl shadow-indigo-200">
-            <div className="bg-white rounded-[22px] overflow-hidden">
-              <div className="bg-gray-50 border-b border-gray-100 px-6 py-4 flex items-center gap-2">
+          <div className="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-3xl p-1 shadow-2xl shadow-emerald-200">
+            <div className="brand-glass-strong rounded-[22px] overflow-hidden">
+              <div className="bg-white/65 border-b border-emerald-100 px-6 py-4 flex items-center gap-2 backdrop-blur-sm">
                 <div className="w-3 h-3 rounded-full bg-rose-400" />
                 <div className="w-3 h-3 rounded-full bg-amber-400" />
                 <div className="w-3 h-3 rounded-full bg-emerald-400" />
@@ -162,8 +162,8 @@ export default function LandingPage() {
                   {
                     label: "Total Users",
                     value: "1,284",
-                    color: "text-indigo-600",
-                    bg: "bg-indigo-50",
+                    color: "text-emerald-600",
+                    bg: "bg-emerald-50",
                   },
                   {
                     label: "Active Now",
@@ -180,8 +180,8 @@ export default function LandingPage() {
                   {
                     label: "This Month",
                     value: "+94",
-                    color: "text-violet-600",
-                    bg: "bg-violet-50",
+                    color: "text-teal-600",
+                    bg: "bg-teal-50",
                   },
                 ].map((stat) => (
                   <div
@@ -198,7 +198,7 @@ export default function LandingPage() {
                 ))}
               </div>
               <div className="px-6 pb-6">
-                <div className="bg-gray-50 rounded-2xl p-4">
+                <div className="brand-glass rounded-2xl p-4">
                   <p className="text-xs font-semibold text-gray-500 mb-3">
                     RECENT USERS
                   </p>
@@ -211,7 +211,7 @@ export default function LandingPage() {
                       key={u}
                       className="flex items-center gap-3 py-2 border-b border-gray-100 last:border-0"
                     >
-                      <div className="w-7 h-7 rounded-full bg-gradient-to-br from-indigo-400 to-violet-500" />
+                      <div className="w-7 h-7 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500" />
                       <span className="text-sm text-gray-700">{u}</span>
                     </div>
                   ))}
@@ -225,12 +225,12 @@ export default function LandingPage() {
       <PublicEventsSection />
 
       {/* FEATURES */}
-      <section id="features" className="py-24 px-6 bg-gray-50">
+      <section id="features" className="py-24 px-6">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-extrabold mb-4">
               Everything you need to{" "}
-              <span className="bg-gradient-to-r from-indigo-500 to-violet-600 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-emerald-500 to-teal-600 bg-clip-text text-transparent">
                 ship fast
               </span>
             </h2>
@@ -243,7 +243,7 @@ export default function LandingPage() {
             {features.map((f) => (
               <div
                 key={f.title}
-                className="bg-white rounded-2xl p-6 border border-gray-100 hover:border-indigo-200 hover:shadow-lg hover:shadow-indigo-50 transition-all group"
+                className="brand-glass rounded-2xl p-6 hover:border-emerald-200 hover:shadow-lg hover:shadow-emerald-50 transition-all group"
               >
                 <div
                   className={`w-12 h-12 ${f.bg} rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}
@@ -273,10 +273,7 @@ export default function LandingPage() {
           </div>
           <div className="grid md:grid-cols-3 gap-6">
             {testimonials.map((t) => (
-              <div
-                key={t.name}
-                className="bg-gradient-to-br from-indigo-50 to-violet-50 rounded-2xl p-6 border border-indigo-100"
-              >
+              <div key={t.name} className="brand-glass rounded-2xl p-6">
                 <div className="flex gap-1 mb-4">
                   {Array.from({ length: t.stars }).map((_, i) => (
                     <Star
@@ -299,7 +296,7 @@ export default function LandingPage() {
       </section>
 
       {/* PRICING */}
-      <section id="pricing" className="py-24 px-6 bg-gray-50">
+      <section id="pricing" className="py-24 px-6">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-extrabold mb-4">
@@ -313,10 +310,10 @@ export default function LandingPage() {
             {plans.map((p) => (
               <div
                 key={p.name}
-                className={`rounded-2xl p-6 border ${p.highlighted ? "bg-gradient-to-br from-indigo-500 to-violet-600 border-transparent text-white shadow-2xl shadow-indigo-200 scale-105" : "bg-white border-gray-200"}`}
+                className={`rounded-2xl p-6 border ${p.highlighted ? "bg-gradient-to-br from-emerald-500 to-teal-600 border-transparent text-white shadow-2xl shadow-emerald-200 scale-105" : "brand-glass"}`}
               >
                 <p
-                  className={`text-sm font-semibold mb-1 ${p.highlighted ? "text-indigo-200" : "text-gray-500"}`}
+                  className={`text-sm font-semibold mb-1 ${p.highlighted ? "text-emerald-200" : "text-gray-500"}`}
                 >
                   {p.name}
                 </p>
@@ -326,7 +323,7 @@ export default function LandingPage() {
                   {p.price}
                 </p>
                 <p
-                  className={`text-sm mb-6 ${p.highlighted ? "text-indigo-200" : "text-gray-500"}`}
+                  className={`text-sm mb-6 ${p.highlighted ? "text-emerald-200" : "text-gray-500"}`}
                 >
                   {p.desc}
                 </p>
@@ -334,11 +331,11 @@ export default function LandingPage() {
                   {p.features.map((feat) => (
                     <li key={feat} className="flex items-center gap-2 text-sm">
                       <CheckCircle2
-                        className={`w-4 h-4 flex-shrink-0 ${p.highlighted ? "text-indigo-200" : "text-indigo-500"}`}
+                        className={`w-4 h-4 flex-shrink-0 ${p.highlighted ? "text-emerald-200" : "text-emerald-500"}`}
                       />
                       <span
                         className={
-                          p.highlighted ? "text-indigo-100" : "text-gray-600"
+                          p.highlighted ? "text-emerald-100" : "text-gray-600"
                         }
                       >
                         {feat}
@@ -348,7 +345,7 @@ export default function LandingPage() {
                 </ul>
                 <Link
                   href="/auth/sign-up"
-                  className={`block text-center font-semibold py-3 rounded-xl transition-all ${p.highlighted ? "bg-white text-indigo-600 hover:bg-indigo-50" : "bg-indigo-50 text-indigo-600 hover:bg-indigo-100"}`}
+                  className={`block text-center font-semibold py-3 rounded-xl transition-all ${p.highlighted ? "bg-white text-emerald-600 hover:bg-emerald-50" : "bg-emerald-50 text-emerald-600 hover:bg-emerald-100"}`}
                 >
                   {p.cta}
                 </Link>
@@ -361,16 +358,16 @@ export default function LandingPage() {
       {/* CTA */}
       <section className="py-24 px-6">
         <div className="max-w-4xl mx-auto text-center">
-          <div className="bg-gradient-to-br from-indigo-500 to-violet-600 rounded-3xl px-8 py-16 text-white shadow-2xl shadow-indigo-200">
+          <div className="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-3xl px-8 py-16 text-white shadow-2xl shadow-emerald-200">
             <h2 className="text-4xl md:text-5xl font-extrabold mb-4">
               Ready to jump in?
             </h2>
-            <p className="text-indigo-200 text-lg mb-8 max-w-xl mx-auto">
+            <p className="text-emerald-200 text-lg mb-8 max-w-xl mx-auto">
               Get up and running in minutes. No setup headaches.
             </p>
             <Link
               href="/auth/sign-up"
-              className="inline-flex items-center gap-2 bg-white text-indigo-600 font-bold text-base px-8 py-4 rounded-2xl hover:bg-indigo-50 transition-colors shadow-lg"
+              className="inline-flex items-center gap-2 bg-white text-emerald-600 font-bold text-base px-8 py-4 rounded-2xl hover:bg-emerald-50 transition-colors shadow-lg"
             >
               Create your free account <ArrowRight className="w-5 h-5" />
             </Link>
@@ -381,12 +378,7 @@ export default function LandingPage() {
       {/* FOOTER */}
       <footer className="border-t border-gray-100 py-12 px-6">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center">
-              <Rocket className="w-3.5 h-3.5 text-white" />
-            </div>
-            <span className="font-bold text-gray-900">JumpPlusPlus</span>
-          </div>
+          <BrandLogo showText={true} iconClassName="h-7 w-7 rounded-lg" />
           <p className="text-sm text-gray-400">
             © {new Date().getFullYear()} JumpPlusPlus. Built with Next.js &amp;
             Express.

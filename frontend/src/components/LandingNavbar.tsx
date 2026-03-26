@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { Loader2, Rocket } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
+import BrandLogo from "@/components/BrandLogo";
 
 export default function LandingNavbar() {
   const { user, loading, logout } = useAuth();
@@ -59,17 +60,10 @@ export default function LandingNavbar() {
   return (
     <nav
       ref={navRef}
-      className="fixed top-0 inset-x-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100"
+      className="fixed top-0 inset-x-0 z-50 border-b border-emerald-100/70 bg-white/70 backdrop-blur-md"
     >
       <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center">
-            <Rocket className="w-4 h-4 text-white" />
-          </div>
-          <span className="text-lg font-bold bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">
-            JumpPlusPlus
-          </span>
-        </div>
+        <BrandLogo textClassName="text-lg" />
 
         <div className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600">
           {navItems.map((item) => (
@@ -116,7 +110,7 @@ export default function LandingNavbar() {
               </Link>
               <Link
                 href="/auth/sign-up?force=1"
-                className="text-sm font-semibold bg-gradient-to-r from-indigo-500 to-violet-600 text-white px-5 py-2.5 rounded-xl hover:opacity-90 transition-opacity shadow-sm"
+                className="text-sm font-semibold bg-linear-to-r from-emerald-700 to-teal-600 text-white px-5 py-2.5 rounded-xl hover:opacity-90 transition-opacity shadow-sm"
               >
                 Get Started
               </Link>
@@ -207,7 +201,7 @@ export default function LandingNavbar() {
                   <Link
                     href="/auth/sign-up?force=1"
                     onClick={() => setMenuOpen(false)}
-                    className="rounded-xl bg-gradient-to-r from-indigo-500 to-violet-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm"
+                    className="rounded-xl bg-linear-to-r from-emerald-700 to-teal-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm"
                   >
                     Get Started
                   </Link>

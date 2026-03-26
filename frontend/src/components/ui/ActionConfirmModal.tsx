@@ -102,7 +102,7 @@ export default function ActionConfirmModal({
                 className={`rounded-lg px-4 py-2 font-semibold text-white transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${
                   danger
                     ? "bg-red-600 hover:bg-red-700"
-                    : "bg-indigo-600 hover:bg-indigo-700"
+                    : "bg-emerald-600 hover:bg-emerald-700"
                 }`}
               >
                 {loading ? "Processing..." : confirmLabel}

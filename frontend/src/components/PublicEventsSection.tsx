@@ -28,11 +28,11 @@ export default function PublicEventsSection() {
   }, []);
 
   return (
-    <section id="events" className="py-24 px-6 bg-white">
+    <section id="events" className="py-24 px-6">
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between mb-12">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-indigo-500 mb-3">
+            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-emerald-500 mb-3">
               Public Events
             </p>
             <h2 className="text-4xl font-extrabold text-gray-900 mb-3">
@@ -53,9 +53,9 @@ export default function PublicEventsSection() {
         </div>
 
         {loading && (
-          <div className="flex items-center justify-center rounded-3xl border border-gray-100 bg-gray-50 py-16">
+          <div className="brand-glass flex items-center justify-center rounded-3xl py-16">
             <div className="flex items-center gap-3 text-gray-500">
-              <Loader2 className="w-5 h-5 animate-spin text-indigo-500" />
+              <Loader2 className="w-5 h-5 animate-spin text-emerald-500" />
               Loading events...
             </div>
           </div>
@@ -68,7 +68,7 @@ export default function PublicEventsSection() {
         )}
 
         {!loading && !error && events.length === 0 && (
-          <div className="rounded-3xl border border-gray-100 bg-gray-50 py-16 text-center text-gray-500">
+          <div className="brand-glass rounded-3xl py-16 text-center text-gray-500">
             No public events are available right now.
           </div>
         )}
@@ -83,7 +83,7 @@ export default function PublicEventsSection() {
               return (
                 <article
                   key={event.id}
-                  className="rounded-3xl border border-gray-100 bg-linear-to-br from-white to-gray-50 p-6 shadow-sm transition-all hover:-translate-y-1 hover:border-indigo-200 hover:shadow-xl hover:shadow-indigo-50"
+                  className="brand-glass rounded-3xl p-6 shadow-sm transition-all hover:-translate-y-1 hover:border-emerald-200 hover:shadow-xl hover:shadow-emerald-50"
                 >
                   <div className="flex items-start justify-between gap-4 mb-5">
                     <div>
@@ -95,22 +95,22 @@ export default function PublicEventsSection() {
                           "Join this event and reserve a slot when you are ready."}
                       </p>
                     </div>
-                    <div className="rounded-2xl bg-indigo-50 p-3 text-indigo-600">
+                    <div className="rounded-2xl bg-emerald-50 p-3 text-emerald-600">
                       <Ticket className="w-5 h-5" />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-3 mb-6 text-sm text-gray-600">
-                    <div className="rounded-2xl bg-white px-4 py-3 border border-gray-100">
+                    <div className="rounded-2xl bg-white/70 px-4 py-3 border border-emerald-100/70">
                       <div className="flex items-center gap-2 mb-1">
-                        <Clock className="w-4 h-4 text-indigo-500" />
+                        <Clock className="w-4 h-4 text-emerald-500" />
                         <span className="font-medium">Duration</span>
                       </div>
                       <p>{event.duration} minutes</p>
                     </div>
-                    <div className="rounded-2xl bg-white px-4 py-3 border border-gray-100">
+                    <div className="rounded-2xl bg-white/70 px-4 py-3 border border-emerald-100/70">
                       <div className="flex items-center gap-2 mb-1">
-                        <CalendarDays className="w-4 h-4 text-indigo-500" />
+                        <CalendarDays className="w-4 h-4 text-emerald-500" />
                         <span className="font-medium">Availability</span>
                       </div>
                       <p>
@@ -132,7 +132,7 @@ export default function PublicEventsSection() {
                     </div>
                     <Link
                       href={bookingHref}
-                      className="inline-flex items-center justify-center rounded-2xl bg-linear-to-r from-indigo-500 to-violet-600 px-5 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+                      className="inline-flex items-center justify-center rounded-2xl bg-linear-to-r from-emerald-500 to-teal-600 px-5 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90"
                     >
                       {user ? "Book This Event" : "Sign In to Book"}
                     </Link>

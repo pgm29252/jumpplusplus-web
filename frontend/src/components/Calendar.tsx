@@ -139,17 +139,17 @@ export default function Calendar({
               className={`relative flex h-12 w-full items-center justify-center rounded-xl text-sm font-medium transition-all lg:h-16
                 ${
                   selected
-                    ? "bg-indigo-600 text-white shadow-md shadow-indigo-200 scale-105"
+                    ? "bg-emerald-600 text-white shadow-md shadow-emerald-200 scale-105"
                     : disabled
                       ? "cursor-not-allowed text-gray-300"
                       : today
-                        ? "bg-indigo-50 text-indigo-600 font-bold hover:bg-indigo-100"
-                        : "text-gray-900 hover:bg-indigo-50 hover:text-indigo-600"
+                        ? "bg-emerald-50 text-emerald-600 font-bold hover:bg-emerald-100"
+                        : "text-gray-900 hover:bg-emerald-50 hover:text-emerald-600"
                 }`}
             >
               {day}
               {today && !selected && (
-                <span className="absolute bottom-1 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full bg-indigo-500" />
+                <span className="absolute bottom-1 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full bg-emerald-500" />
               )}
             </button>
           );

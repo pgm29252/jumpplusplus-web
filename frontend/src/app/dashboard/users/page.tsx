@@ -86,7 +86,7 @@ function EditModal({
           }}
         />
         <motion.div
-          className="relative z-10 w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl"
+          className="brand-glass-strong relative z-10 w-full max-w-md rounded-2xl border border-emerald-100 p-6 shadow-2xl"
           variants={modalContainerVariants}
         >
           <motion.div
@@ -96,7 +96,7 @@ function EditModal({
             <h2 className="text-lg font-bold text-gray-900">Edit User</h2>
             <button
               onClick={onClose}
-              className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100"
+              className="rounded-lg p-1.5 text-gray-400 hover:bg-emerald-50"
             >
               <X className="h-5 w-5" />
             </button>
@@ -117,7 +117,7 @@ function EditModal({
               <input
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
-                className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-500"
               />
             </motion.div>
             <motion.div variants={modalItemVariants}>
@@ -129,7 +129,7 @@ function EditModal({
                 onChange={(e) =>
                   setForm({ ...form, role: e.target.value as EditData["role"] })
                 }
-                className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-500"
               >
                 <option value="USER">User</option>
                 <option value="MODERATOR">Moderator</option>
@@ -145,7 +145,7 @@ function EditModal({
                 onChange={(e) =>
                   setForm({ ...form, isActive: e.target.value === "active" })
                 }
-                className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-500"
               >
                 <option value="active">Active</option>
                 <option value="inactive">Inactive</option>
@@ -162,7 +162,7 @@ function EditModal({
             <button
               onClick={handleSave}
               disabled={saving}
-              className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-linear-to-r from-indigo-500 to-violet-600 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-60"
+              className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-linear-to-r from-emerald-500 to-teal-600 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-60"
             >
               {saving ? (
                 <>
@@ -238,7 +238,7 @@ export default function UsersPage() {
   );
 
   return (
-    <div>
+    <div className="brand-surface rounded-3xl p-1">
       {editingUser && (
         <EditModal
           user={editingUser}
@@ -278,36 +278,39 @@ export default function UsersPage() {
       )}
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+      <div className="brand-glass mb-8 flex flex-col gap-4 rounded-3xl px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
         <div>
+          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700/80">
+            Admin Workspace
+          </p>
           <h1 className="text-2xl font-extrabold text-gray-900">
             User Management
           </h1>
           <p className="text-gray-500 mt-1">{users.length} total users</p>
         </div>
-        <div className="flex items-center gap-2 bg-indigo-50 text-indigo-700 text-sm font-medium px-4 py-2 rounded-xl border border-indigo-100">
+        <div className="flex items-center gap-2 bg-emerald-50 text-emerald-700 text-sm font-medium px-4 py-2 rounded-xl border border-emerald-100">
           <Shield className="w-4 h-4" />
           Admin Panel
         </div>
       </div>
 
       {/* Search */}
-      <div className="relative mb-6">
+      <div className="brand-glass relative mb-6 rounded-2xl p-1.5">
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
         <input
           type="search"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search by name or email..."
-          className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+          className="w-full rounded-xl border border-emerald-100 bg-white/80 py-3 pl-11 pr-4 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-500"
         />
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+      <div className="brand-glass rounded-2xl overflow-hidden">
         {loading ? (
           <div className="flex items-center justify-center py-16">
-            <Loader2 className="w-6 h-6 text-indigo-500 animate-spin" />
+            <Loader2 className="w-6 h-6 text-emerald-500 animate-spin" />
           </div>
         ) : filtered.length === 0 ? (
           <div className="text-center py-16">
@@ -319,7 +322,7 @@ export default function UsersPage() {
             {/* Desktop table */}
             <table className="w-full hidden md:table">
               <thead>
-                <tr className="border-b border-gray-100 bg-gray-50">
+                <tr className="border-b border-emerald-100 bg-white/70">
                   <th className="text-left text-xs font-semibold text-gray-500 px-6 py-3">
                     User
                   </th>
@@ -339,10 +342,10 @@ export default function UsersPage() {
               </thead>
               <tbody className="divide-y divide-gray-50">
                 {filtered.map((u) => (
-                  <tr key={u.id} className="hover:bg-gray-50 transition-colors">
+                  <tr key={u.id} className="transition-colors hover:bg-white/70">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 shrink-0 rounded-full bg-linear-to-br from-indigo-400 to-violet-500 flex items-center justify-center text-white text-sm font-bold">
+                        <div className="w-9 h-9 shrink-0 rounded-full bg-linear-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white text-sm font-bold">
                           {u.name.charAt(0).toUpperCase()}
                         </div>
                         <div>
@@ -389,7 +392,7 @@ export default function UsersPage() {
                       <div className="flex items-center justify-end gap-2">
                         <button
                           onClick={() => setEditingUser(u)}
-                          className="p-2 rounded-lg hover:bg-indigo-50 text-gray-400 hover:text-indigo-600 transition-colors"
+                          className="p-2 rounded-lg hover:bg-emerald-50 text-gray-400 hover:text-emerald-600 transition-colors"
                           title="Edit user"
                         >
                           <Edit2 className="w-4 h-4" />
@@ -416,14 +419,14 @@ export default function UsersPage() {
             </table>
 
             {/* Mobile cards */}
-            <div className="md:hidden divide-y divide-gray-50">
+            <div className="divide-y divide-emerald-50/80 md:hidden">
               {filtered.map((u) => (
                 <div
                   key={u.id}
-                  className="p-4 hover:bg-gray-50 transition-colors"
+                  className="p-4 transition-colors hover:bg-white/70"
                 >
                   <div className="flex items-center gap-3 mb-3">
-                    <div className="w-10 h-10 rounded-full bg-linear-to-br from-indigo-400 to-violet-500 flex items-center justify-center text-white text-sm font-bold">
+                    <div className="w-10 h-10 rounded-full bg-linear-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white text-sm font-bold">
                       {u.name.charAt(0).toUpperCase()}
                     </div>
                     <div className="flex-1 min-w-0">
@@ -461,7 +464,7 @@ export default function UsersPage() {
                   <div className="flex gap-2">
                     <button
                       onClick={() => setEditingUser(u)}
-                      className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-colors"
+                      className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors"
                     >
                       <Edit2 className="w-3 h-3" /> Edit
                     </button>

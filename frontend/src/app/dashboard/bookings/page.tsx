@@ -298,7 +298,7 @@ function BookingsContent() {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="flex flex-col items-center gap-3">
-          <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />
+          <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
           <p className="text-gray-600">Loading events...</p>
         </div>
       </div>
@@ -306,15 +306,18 @@ function BookingsContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="brand-surface min-h-screen p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-extrabold text-gray-900 mb-2">
+        <div className="brand-glass mb-8 rounded-3xl px-6 py-5">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700/80">
+            Booking Workspace
+          </p>
+          <h1 className="mb-1 text-3xl font-extrabold text-gray-900">
             Book an Event
           </h1>
-          <p className="text-gray-600">
-            Choose an event and select your preferred date and time
+          <p className="text-sm text-gray-600 sm:text-base">
+            Choose an event, preview details, and confirm your preferred slot.
           </p>
         </div>
 
@@ -330,7 +333,7 @@ function BookingsContent() {
             <div className="mb-2">
               <Link
                 href="/dashboard/my-bookings"
-                className="inline-block px-6 py-2 bg-gray-200 text-gray-900 font-semibold rounded-lg hover:bg-gray-300 transition-colors"
+                className="inline-flex items-center rounded-lg bg-linear-to-r from-emerald-700 to-teal-600 px-6 py-2 font-semibold text-white transition-opacity hover:opacity-90"
               >
                 View My Bookings
               </Link>
@@ -343,13 +346,13 @@ function BookingsContent() {
             />
           </div>
 
-          <div className="lg:col-span-2">
+          <div className="brand-glass lg:col-span-2 rounded-2xl p-4 sm:p-5">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-lg font-bold text-gray-900">
                 Available Events
               </h2>
               {selectedDate && (
-                <span className="text-xs font-semibold rounded-full border border-gray-200 bg-white px-3 py-1 text-gray-600">
+                <span className="rounded-full border border-emerald-100 bg-white/80 px-3 py-1 text-xs font-semibold text-emerald-700">
                   {formatDate(selectedDate.toISOString())}
                 </span>
               )}
@@ -357,10 +360,10 @@ function BookingsContent() {
 
             <div className="relative">
               {showTopFade && (
-                <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-10 bg-gradient-to-b from-gray-50 via-gray-50/80 to-transparent" />
+                <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-10 bg-gradient-to-b from-white via-white/75 to-transparent" />
               )}
               {showBottomFade && (
-                <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-12 bg-gradient-to-t from-gray-50 via-gray-50/85 to-transparent" />
+                <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-12 bg-gradient-to-t from-white via-white/80 to-transparent" />
               )}
 
               <div
@@ -384,17 +387,17 @@ function BookingsContent() {
                 className="space-y-4 max-h-[72vh] overflow-auto pr-1 pb-4 pt-3"
               >
                 {!selectedDate ? (
-                  <div className="text-center py-12 bg-white rounded-xl border border-gray-200">
+                  <div className="rounded-xl border border-emerald-100 bg-white/70 py-12 text-center backdrop-blur-sm">
                     <p className="text-gray-500">
                       Select a date to see available events
                     </p>
                   </div>
                 ) : events.length === 0 ? (
-                  <div className="text-center py-12 bg-white rounded-xl border border-gray-200">
+                  <div className="rounded-xl border border-emerald-100 bg-white/70 py-12 text-center backdrop-blur-sm">
                     <p className="text-gray-500">No events available</p>
                   </div>
                 ) : eventsForSelectedDate.length === 0 ? (
-                  <div className="text-center py-12 bg-white rounded-xl border border-gray-200">
+                  <div className="rounded-xl border border-emerald-100 bg-white/70 py-12 text-center backdrop-blur-sm">
                     <p className="text-gray-500">
                       No events available on this date
                     </p>
@@ -406,8 +409,8 @@ function BookingsContent() {
                       onClick={() => setSelectedEvent(event)}
                       className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${
                         selectedEvent?.id === event.id
-                          ? "border-indigo-500 bg-indigo-50"
-                          : "border-gray-200 bg-white hover:border-gray-300"
+                          ? "border-emerald-500 bg-linear-to-br from-emerald-50 to-teal-50 shadow-sm"
+                          : "border-emerald-100 bg-white/75 backdrop-blur-sm hover:-translate-y-0.5 hover:border-emerald-200"
                       }`}
                     >
                       {(event.coverImageUrl || event.imageUrl) && (
@@ -498,7 +501,7 @@ function BookingsContent() {
                             setShowConfirmModal(true);
                           }}
                           disabled={!selectedDate || booking}
-                          className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           Book Event
                         </button>
@@ -533,9 +536,9 @@ function BookingsContent() {
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
               transition={{ duration: 0.3, ease: "easeOut" }}
-              className="w-full max-w-2xl rounded-2xl border border-gray-200 bg-white shadow-2xl"
+              className="brand-glass-strong w-full max-w-2xl rounded-2xl border border-emerald-100 shadow-2xl"
             >
-              <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
+              <div className="flex items-center justify-between border-b border-emerald-100 bg-white/80 px-6 py-4 backdrop-blur-sm">
                 <div>
                   <h3 className="text-lg font-bold text-gray-900">
                     Confirm Booking
@@ -555,7 +558,7 @@ function BookingsContent() {
               <div className="max-h-[75vh] overflow-auto px-6 py-5">
                 {modalGalleryImages.length > 0 && (
                   <div className="mb-5">
-                    <div className="relative h-52 overflow-hidden rounded-xl border border-gray-200 bg-gray-100">
+                    <div className="relative h-52 overflow-hidden rounded-xl border border-emerald-100 bg-white/70">
                       <AnimatePresence
                         custom={modalSlideDirection}
                         initial={false}
@@ -591,7 +594,7 @@ function BookingsContent() {
                           <button
                             type="button"
                             onClick={showPrevModalImage}
-                            className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-white/90 p-2 text-gray-700 shadow transition hover:bg-white"
+                            className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-white/90 p-2 text-gray-700 shadow transition hover:bg-emerald-50"
                             aria-label="Previous image"
                           >
                             <ChevronLeft className="h-4 w-4" />
@@ -599,7 +602,7 @@ function BookingsContent() {
                           <button
                             type="button"
                             onClick={showNextModalImage}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-white/90 p-2 text-gray-700 shadow transition hover:bg-white"
+                            className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-white/90 p-2 text-gray-700 shadow transition hover:bg-emerald-50"
                             aria-label="Next image"
                           >
                             <ChevronRight className="h-4 w-4" />
@@ -626,7 +629,7 @@ function BookingsContent() {
                             }}
                             className={`overflow-hidden rounded-lg border-2 transition ${
                               modalGalleryIndex === index
-                                ? "border-indigo-500"
+                                ? "border-emerald-500"
                                 : "border-transparent hover:border-gray-300"
                             }`}
                             aria-label={`View image ${index + 1}`}
@@ -644,7 +647,7 @@ function BookingsContent() {
                   </div>
                 )}
 
-                <div className="mb-4 rounded-lg border border-indigo-100 bg-indigo-50 px-3 py-2 text-xs text-indigo-700">
+                <div className="mb-4 rounded-lg border border-emerald-100 bg-emerald-50 px-3 py-2 text-xs text-emerald-700">
                   2. Complete your booking details for{" "}
                   {formatDate(selectedDate.toISOString())}
                 </div>
@@ -657,7 +660,7 @@ function BookingsContent() {
                     type="time"
                     value={selectedTime}
                     onChange={(e) => setSelectedTime(e.target.value)}
-                    className="w-full rounded-lg border border-gray-200 px-4 py-2 text-gray-900 focus:ring-2 focus:ring-indigo-500"
+                    className="w-full rounded-lg border border-emerald-100 bg-white/80 px-4 py-2 text-gray-900 focus:ring-2 focus:ring-emerald-500"
                   />
                   {remainingSlotsAtSelectedTime !== null && (
                     <p className="mt-2 text-xs text-gray-500">
@@ -675,7 +678,7 @@ function BookingsContent() {
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
                     placeholder="Add any notes or special requests..."
-                    className="w-full resize-none rounded-lg border border-gray-200 px-4 py-2 text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-indigo-500"
+                    className="w-full resize-none rounded-lg border border-emerald-100 bg-white/80 px-4 py-2 text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-emerald-500"
                     rows={3}
                   />
                 </div>
@@ -683,20 +686,20 @@ function BookingsContent() {
                 <div className="mb-5">
                   <div className="mb-3 flex items-center justify-between">
                     <div className="flex items-center gap-2 text-sm font-semibold text-gray-700">
-                      <MapPin className="w-4 h-4 text-indigo-500" />
+                      <MapPin className="w-4 h-4 text-emerald-500" />
                       Event Location
                     </div>
                     <a
                       href={osmMapUrl}
                       target="_blank"
                       rel="noreferrer"
-                      className="inline-flex items-center gap-1 text-xs font-semibold text-indigo-600 hover:text-indigo-700"
+                      className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 hover:text-emerald-700"
                     >
                       Open in OSM <ExternalLink className="w-3 h-3" />
                     </a>
                   </div>
 
-                  <div className="overflow-hidden rounded-xl border border-gray-200 bg-gray-50">
+                  <div className="overflow-hidden rounded-xl border border-emerald-100 bg-white/70">
                     <iframe
                       title="Event location map"
                       src={osmEmbedUrl}
@@ -710,7 +713,7 @@ function BookingsContent() {
                   </p>
                 </div>
 
-                <div className="rounded-lg bg-gray-50 p-4">
+                <div className="rounded-lg border border-emerald-100 bg-white/70 p-4">
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
                       <span className="text-gray-600">Date:</span>
@@ -742,7 +745,7 @@ function BookingsContent() {
                 </div>
               </div>
 
-              <div className="flex items-center justify-end gap-3 border-t border-gray-100 px-6 py-4">
+              <div className="flex items-center justify-end gap-3 border-t border-emerald-100 bg-white/70 px-6 py-4">
                 <button
                   type="button"
                   onClick={() => setShowConfirmModal(false)}
@@ -755,7 +758,7 @@ function BookingsContent() {
                   type="button"
                   onClick={handleBooking}
                   disabled={booking}
-                  className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {booking ? (
                     <>

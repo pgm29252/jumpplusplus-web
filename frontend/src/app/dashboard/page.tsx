@@ -30,7 +30,7 @@ function StatCard({
   bg: string;
 }) {
   return (
-    <div className="bg-white rounded-2xl p-5 border border-gray-100 hover:shadow-md transition-shadow">
+    <div className="brand-glass rounded-2xl p-5 hover:shadow-md transition-shadow">
       <div className="flex items-center justify-between mb-3">
         <div
           className={`w-10 h-10 ${bg} rounded-xl flex items-center justify-center`}
@@ -52,7 +52,7 @@ function SummaryChart({
   const max = Math.max(...items.map((item) => item.value), 1);
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 p-5">
+    <div className="brand-glass rounded-2xl p-5">
       <h3 className="text-sm font-bold text-gray-900 mb-4">Summary Chart</h3>
       <div className="space-y-4">
         {items.map((item) => {
@@ -167,9 +167,12 @@ export default function DashboardPage() {
   ].filter((item) => item.show);
 
   return (
-    <div>
+    <div className="brand-surface rounded-3xl p-1">
       {/* Header */}
-      <div className="mb-8">
+      <div className="brand-glass mb-8 rounded-3xl px-6 py-5">
+        <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700/80">
+          Dashboard Overview
+        </p>
         <h1 className="text-2xl font-extrabold text-gray-900">
           {greeting}, {user?.name?.split(" ")[0]} 👋
         </h1>
@@ -191,11 +194,11 @@ export default function DashboardPage() {
               {Array.from({ length: 4 }).map((_, i) => (
                 <div
                   key={i}
-                  className="bg-white rounded-2xl p-5 border border-gray-100 h-28 animate-pulse"
+                  className="brand-glass rounded-2xl p-5 h-28 animate-pulse"
                 />
               ))}
             </div>
-            <div className="bg-white rounded-2xl p-5 border border-gray-100 h-64 animate-pulse" />
+            <div className="brand-glass rounded-2xl p-5 h-64 animate-pulse" />
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
@@ -218,8 +221,8 @@ export default function DashboardPage() {
                 icon={BookOpen}
                 label={user?.role === "USER" ? "My Bookings" : "Total Bookings"}
                 value={summary.totalBookings}
-                color="text-indigo-600"
-                bg="bg-indigo-50"
+                color="text-emerald-600"
+                bg="bg-emerald-50"
               />
               <StatCard
                 icon={TrendingUp}
@@ -248,8 +251,8 @@ export default function DashboardPage() {
                   label:
                     user?.role === "USER" ? "My Bookings" : "Total Bookings",
                   value: summary.totalBookings,
-                  color: "bg-indigo-500",
-                  track: "bg-indigo-100",
+                  color: "bg-emerald-500",
+                  track: "bg-emerald-100",
                 },
                 {
                   label: "Upcoming Bookings",
@@ -266,7 +269,7 @@ export default function DashboardPage() {
       {/* Section: Other features */}
       <section className="mb-8">
         <div className="mb-3 flex items-center gap-2">
-          <Settings2 className="w-4 h-4 text-indigo-600" />
+          <Settings2 className="w-4 h-4 text-emerald-600" />
           <h2 className="text-lg font-bold text-gray-900">Other Features</h2>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -274,13 +277,13 @@ export default function DashboardPage() {
             <Link
               key={item.href}
               href={item.href}
-              className="group bg-white rounded-2xl border border-gray-100 px-4 py-3 hover:border-indigo-200 hover:shadow-sm transition-all"
+              className="brand-glass group rounded-2xl px-4 py-3 hover:border-emerald-200 hover:shadow-sm transition-all"
             >
               <div className="flex items-center justify-between">
                 <span className="text-sm font-semibold text-gray-800">
                   {item.label}
                 </span>
-                <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-indigo-600 transition-colors" />
+                <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-emerald-600 transition-colors" />
               </div>
             </Link>
           ))}
@@ -295,7 +298,7 @@ export default function DashboardPage() {
               {Array.from({ length: 4 }).map((_, i) => (
                 <div
                   key={i}
-                  className="bg-white rounded-2xl p-5 border border-gray-100 h-28 animate-pulse"
+                  className="brand-glass rounded-2xl p-5 h-28 animate-pulse"
                 />
               ))}
             </div>
@@ -305,8 +308,8 @@ export default function DashboardPage() {
                 icon={Users}
                 label="Total Users"
                 value={stats?.total ?? 0}
-                color="text-indigo-600"
-                bg="bg-indigo-50"
+                color="text-emerald-600"
+                bg="bg-emerald-50"
               />
               <StatCard
                 icon={UserCheck}
@@ -326,33 +329,33 @@ export default function DashboardPage() {
                 icon={TrendingUp}
                 label="Moderators"
                 value={stats?.moderators ?? 0}
-                color="text-violet-600"
-                bg="bg-violet-50"
+                color="text-teal-600"
+                bg="bg-teal-50"
               />
             </div>
           )}
 
           {/* Recent users */}
-          <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+          <div className="brand-glass rounded-2xl overflow-hidden">
             <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Activity className="w-4 h-4 text-indigo-500" />
+                <Activity className="w-4 h-4 text-emerald-500" />
                 <h2 className="font-bold text-gray-900">Recent Users</h2>
               </div>
               <a
                 href="/dashboard/users"
-                className="text-xs font-semibold text-indigo-600 hover:text-indigo-700 transition-colors"
+                className="text-xs font-semibold text-emerald-600 hover:text-emerald-700 transition-colors"
               >
                 View all →
               </a>
             </div>
-            <div className="divide-y divide-gray-50">
+            <div className="divide-y divide-emerald-50/80">
               {recentUsers.map((u) => (
                 <div
                   key={u.id}
-                  className="flex items-center gap-4 px-6 py-4 hover:bg-gray-50 transition-colors"
+                  className="flex items-center gap-4 px-6 py-4 transition-colors hover:bg-white/70"
                 >
-                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-400 to-violet-500 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
+                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
                     {u.name.charAt(0).toUpperCase()}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -383,15 +386,15 @@ export default function DashboardPage() {
 
       {/* Non-admin view */}
       {user?.role !== "ADMIN" && (
-        <div className="bg-white rounded-2xl border border-gray-100 p-8 text-center">
-          <div className="w-16 h-16 bg-indigo-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <UserCheck className="w-8 h-8 text-indigo-500" />
+        <div className="brand-glass rounded-2xl p-8 text-center">
+          <div className="w-16 h-16 bg-emerald-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <UserCheck className="w-8 h-8 text-emerald-500" />
           </div>
           <h2 className="text-xl font-bold text-gray-900 mb-2">Your Account</h2>
           <p className="text-gray-500 mb-6">
             You are signed in as <strong>{user?.role}</strong>.
           </p>
-          <div className="inline-flex flex-col items-start gap-2 bg-gray-50 rounded-2xl px-6 py-4 text-sm text-gray-600">
+          <div className="inline-flex flex-col items-start gap-2 rounded-2xl border border-emerald-100/70 bg-white/70 px-6 py-4 text-sm text-gray-600">
             <p>
               <span className="font-semibold">Name:</span> {user?.name}
             </p>

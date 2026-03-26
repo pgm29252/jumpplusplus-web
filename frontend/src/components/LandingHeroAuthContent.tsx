@@ -28,7 +28,7 @@ export default function LandingHeroAuthContent() {
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link
             href="/dashboard"
-            className="group inline-flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-500 to-violet-600 text-white font-semibold text-base px-8 py-4 rounded-2xl hover:opacity-90 transition-all shadow-lg shadow-indigo-200"
+            className="group inline-flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold text-base px-8 py-4 rounded-2xl hover:opacity-90 transition-all shadow-lg shadow-emerald-200"
           >
             Go to dashboard
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -56,7 +56,7 @@ export default function LandingHeroAuthContent() {
       <div className="flex flex-col sm:flex-row gap-4 justify-center">
         <Link
           href="/auth/sign-up?force=1"
-          className="group inline-flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-500 to-violet-600 text-white font-semibold text-base px-8 py-4 rounded-2xl hover:opacity-90 transition-all shadow-lg shadow-indigo-200"
+          className="group inline-flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold text-base px-8 py-4 rounded-2xl hover:opacity-90 transition-all shadow-lg shadow-emerald-200"
         >
           Start for free
           <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />

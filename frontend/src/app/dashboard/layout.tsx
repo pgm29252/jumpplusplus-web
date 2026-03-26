@@ -7,7 +7,6 @@ import {
   LayoutDashboard,
   Users,
   LogOut,
-  Rocket,
   X,
   ChevronRight,
   Calendar,
@@ -18,6 +17,7 @@ import {
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
+import BrandLogo from "@/components/BrandLogo";
 
 const navItems = [
   {
@@ -88,9 +88,10 @@ export default function DashboardLayout({
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center animate-pulse">
-            <Rocket className="w-5 h-5 text-white" />
-          </div>
+          <BrandLogo
+            iconClassName="h-10 w-10 rounded-xl animate-pulse"
+            showText={false}
+          />
           <p className="text-sm text-gray-500">Loading...</p>
         </div>
       </div>
@@ -101,7 +102,7 @@ export default function DashboardLayout({
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="flex flex-col items-center gap-3">
-          <Loader2 className="w-6 h-6 animate-spin text-indigo-600" />
+          <Loader2 className="w-6 h-6 animate-spin text-emerald-700" />
           <p className="text-sm text-gray-500">Redirecting to sign in...</p>
         </div>
       </div>
@@ -130,12 +131,9 @@ export default function DashboardLayout({
   const Sidebar = () => (
     <div className="flex flex-col h-full">
       {/* Logo */}
-      <div className="px-6 py-5 border-b border-gray-100">
+      <div className="border-b border-emerald-100/80 px-6 py-5">
         <Link href="/" className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center">
-            <Rocket className="w-4 h-4 text-white" />
-          </div>
-          <span className="font-bold text-gray-900">JumpPlusPlus</span>
+          <BrandLogo />
         </Link>
       </div>
 
@@ -143,8 +141,11 @@ export default function DashboardLayout({
       <nav className="flex-1 overflow-y-auto px-4 py-6">
         <div className="space-y-5">
           {navByGroup.map((group) => (
-            <section key={group.id}>
-              <p className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+            <section
+              key={group.id}
+              className="rounded-2xl border border-emerald-100/70 bg-white/50 p-2 backdrop-blur-sm"
+            >
+              <p className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-wider text-emerald-700/70">
                 {group.label}
               </p>
               <div className="space-y-1">
@@ -160,14 +161,14 @@ export default function DashboardLayout({
                       className={cn(
                         "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
                         active
-                          ? "bg-indigo-50 text-indigo-700"
-                          : "text-gray-600 hover:bg-gray-50 hover:text-gray-900",
+                          ? "bg-linear-to-r from-emerald-100 to-teal-100 text-emerald-900 shadow-sm"
+                          : "text-gray-600 hover:bg-white/80 hover:text-gray-900",
                       )}
                     >
                       <item.icon className="w-4 h-4 flex-shrink-0" />
                       {item.label}
                       {active && (
-                        <ChevronRight className="ml-auto h-3 w-3 text-indigo-400" />
+                        <ChevronRight className="ml-auto h-3 w-3 text-emerald-500" />
                       )}
                     </Link>
                   );
@@ -179,9 +180,9 @@ export default function DashboardLayout({
       </nav>
 
       {/* User */}
-      <div className="px-4 pb-6 border-t border-gray-100 pt-4">
-        <div className="flex items-center gap-3 px-3 py-2 rounded-xl bg-gray-50 mb-3">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-400 to-violet-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+      <div className="border-t border-emerald-100/80 px-4 pb-6 pt-4">
+        <div className="mb-3 flex items-center gap-3 rounded-xl border border-emerald-100/70 bg-white/60 px-3 py-2 backdrop-blur-sm">
+          <div className="w-8 h-8 rounded-full bg-linear-to-br from-emerald-600 to-teal-600 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
             {user.name.charAt(0).toUpperCase()}
           </div>
           <div className="min-w-0">
@@ -203,9 +204,9 @@ export default function DashboardLayout({
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="brand-surface min-h-screen flex">
       {/* Desktop sidebar */}
-      <aside className="hidden lg:flex lg:flex-col w-64 bg-white border-r border-gray-100 fixed inset-y-0">
+      <aside className="brand-glass-strong fixed inset-y-0 hidden w-64 border-r border-emerald-100/70 lg:flex lg:flex-col">
         <Sidebar />
       </aside>
 
@@ -228,7 +229,7 @@ export default function DashboardLayout({
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: -32, opacity: 0 }}
               transition={{ duration: 0.25, ease: "easeOut" }}
-              className="absolute bottom-0 left-0 top-0 z-50 w-72 bg-white shadow-xl"
+              className="brand-glass-strong absolute bottom-0 left-0 top-0 z-50 w-72 shadow-xl"
             >
               <button
                 onClick={() => setSidebarOpen(false)}
@@ -245,7 +246,7 @@ export default function DashboardLayout({
       {/* Main content */}
       <main className="flex-1 lg:ml-64 min-h-screen">
         {/* Mobile top bar */}
-        <div className="lg:hidden flex items-center justify-between bg-white border-b border-gray-100 px-4 py-3">
+        <div className="brand-glass-strong lg:hidden flex items-center justify-between border-b border-emerald-100/70 px-4 py-3">
           <button
             onClick={() => setSidebarOpen((prev) => !prev)}
             className="group flex h-9 w-9 items-center justify-center rounded-lg text-gray-600 transition-colors hover:bg-gray-100"
@@ -273,10 +274,8 @@ export default function DashboardLayout({
             </span>
           </button>
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center">
-              <Rocket className="w-3 h-3 text-white" />
-            </div>
-            <span className="font-bold text-gray-900 text-sm">
+            <BrandLogo showText={false} iconClassName="h-6 w-6 rounded-lg" />
+            <span className="text-sm font-bold text-gray-900">
               JumpPlusPlus
             </span>
           </div>

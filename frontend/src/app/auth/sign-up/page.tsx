@@ -2,9 +2,10 @@
 import { useEffect, useState, FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff, Rocket, Loader2, CheckCircle2 } from "lucide-react";
+import { Eye, EyeOff, Loader2, CheckCircle2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import ToastNotice from "@/components/ui/ToastNotice";
+import BrandLogo from "@/components/BrandLogo";
 
 function PasswordStrength({ password }: { password: string }) {
   const checks = [
@@ -46,7 +47,7 @@ export default function SignUpPage() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-violet-50 flex items-center justify-center px-4">
+      <div className="brand-surface min-h-screen flex items-center justify-center px-4">
         <div className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm text-gray-500">
           <Loader2 className="h-4 w-4 animate-spin" />
           Checking session...
@@ -73,16 +74,14 @@ export default function SignUpPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-violet-50 flex items-center justify-center px-4">
+    <div className="brand-surface min-h-screen flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-200">
-              <Rocket className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">
-              JumpPlusPlus
-            </span>
+            <BrandLogo
+              textClassName="text-xl"
+              iconClassName="h-10 w-10 rounded-xl"
+            />
           </Link>
           <h1 className="text-3xl font-extrabold text-gray-900 mb-2">
             Create your account
@@ -92,7 +91,7 @@ export default function SignUpPage() {
           </p>
         </div>
 
-        <div className="bg-white rounded-3xl shadow-xl shadow-gray-100 border border-gray-100 p-8">
+        <div className="brand-glass rounded-3xl p-8 shadow-xl shadow-emerald-100">
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -105,7 +104,7 @@ export default function SignUpPage() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="John Doe"
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-sm"
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white/80 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-transparent transition-all text-sm"
               />
             </div>
             <div>
@@ -118,7 +117,7 @@ export default function SignUpPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-sm"
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white/80 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-transparent transition-all text-sm"
               />
             </div>
             <div>
@@ -133,7 +132,7 @@ export default function SignUpPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Create a strong password"
-                  className="w-full px-4 py-3 pr-12 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-sm"
+                  className="w-full px-4 py-3 pr-12 rounded-xl border border-gray-200 bg-white/80 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-transparent transition-all text-sm"
                 />
                 <button
                   type="button"
@@ -153,7 +152,7 @@ export default function SignUpPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-500 to-violet-600 text-white font-semibold py-3 rounded-xl hover:opacity-90 transition-opacity shadow-lg shadow-indigo-200 disabled:opacity-60 disabled:cursor-not-allowed text-sm"
+              className="w-full flex items-center justify-center gap-2 bg-linear-to-r from-emerald-700 to-teal-600 text-white font-semibold py-3 rounded-xl hover:opacity-90 transition-opacity shadow-lg shadow-emerald-200 disabled:opacity-60 disabled:cursor-not-allowed text-sm"
             >
               {loading ? (
                 <>
@@ -171,7 +170,7 @@ export default function SignUpPage() {
               Already have an account?{" "}
               <Link
                 href="/auth/sign-in"
-                className="font-semibold text-indigo-600 hover:text-indigo-700 transition-colors"
+                className="font-semibold text-emerald-700 hover:text-emerald-800 transition-colors"
               >
                 Sign in
               </Link>

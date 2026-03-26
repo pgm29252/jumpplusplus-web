@@ -89,8 +89,11 @@ export default function ManageBookingsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl p-6">
-      <div className="mb-6">
+    <div className="brand-surface mx-auto max-w-6xl p-6">
+      <div className="brand-glass mb-6 rounded-3xl px-6 py-5">
+        <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700/80">
+          Booking Admin
+        </p>
         <h1 className="text-2xl font-bold text-gray-900">Manage Bookings</h1>
         <p className="mt-1 text-sm text-gray-500">
           View who booked each event and cancel bookings when needed.
@@ -118,10 +121,10 @@ export default function ManageBookingsPage() {
             <h2 className="mb-3 text-lg font-semibold text-gray-900">
               Active bookings ({activeBookings.length})
             </h2>
-            <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+            <div className="brand-glass overflow-hidden rounded-2xl shadow-sm">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-gray-100 bg-gray-50">
+                  <tr className="border-b border-emerald-100 bg-white/70">
                     <th className="px-4 py-3 text-left font-semibold text-gray-600">
                       User
                     </th>
@@ -143,7 +146,7 @@ export default function ManageBookingsPage() {
                   {activeBookings.map((booking) => (
                     <tr
                       key={booking.id}
-                      className="hover:bg-gray-50 transition-colors"
+                      className="transition-colors hover:bg-white/70"
                     >
                       <td className="px-4 py-4">
                         <div className="flex items-center gap-2 text-gray-700">
@@ -216,10 +219,10 @@ export default function ManageBookingsPage() {
             <h2 className="mb-3 text-lg font-semibold text-gray-900">
               Cancelled bookings ({cancelledBookings.length})
             </h2>
-            <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+            <div className="brand-glass overflow-hidden rounded-2xl shadow-sm">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-gray-100 bg-gray-50">
+                  <tr className="border-b border-emerald-100 bg-white/70">
                     <th className="px-4 py-3 text-left font-semibold text-gray-600">
                       User
                     </th>
