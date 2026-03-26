@@ -342,7 +342,10 @@ export default function UsersPage() {
               </thead>
               <tbody className="divide-y divide-gray-50">
                 {filtered.map((u) => (
-                  <tr key={u.id} className="transition-colors hover:bg-white/70">
+                  <tr
+                    key={u.id}
+                    className="transition-colors hover:bg-white/70"
+                  >
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <div className="w-9 h-9 shrink-0 rounded-full bg-linear-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white text-sm font-bold">

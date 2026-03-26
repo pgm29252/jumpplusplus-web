@@ -54,7 +54,7 @@ export default function ActionConfirmModal({
           exit="exit"
         >
           <motion.div
-            className="absolute inset-0 bg-gray-900/45 backdrop-blur-sm"
+            className="absolute inset-0 bg-gray-900/40 backdrop-blur-md"
             variants={modalBackdropVariants}
             onClick={() => {
               if (!loading) onClose();
@@ -62,21 +62,23 @@ export default function ActionConfirmModal({
           />
 
           <motion.div
-            className="relative w-full max-w-md rounded-2xl border border-gray-200 bg-white p-6 shadow-xl"
+            className="brand-glass-strong relative w-full max-w-md overflow-hidden rounded-2xl border border-emerald-100 p-6 shadow-2xl shadow-emerald-900/10"
             variants={modalContainerVariants}
             initial="hidden"
             animate="visible"
             exit="exit"
           >
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-16 bg-linear-to-r from-emerald-100/50 via-teal-100/35 to-transparent" />
+
             <motion.h3
-              className="mb-2 text-lg font-bold text-gray-900"
+              className="relative mb-2 text-lg font-bold text-gray-900"
               variants={modalItemVariants}
             >
               {title}
             </motion.h3>
 
             <motion.p
-              className="mb-6 text-sm text-gray-600"
+              className="relative mb-6 rounded-xl border border-emerald-100/70 bg-white/65 px-3 py-2 text-sm text-gray-600"
               variants={modalItemVariants}
             >
               {description}
@@ -90,7 +92,7 @@ export default function ActionConfirmModal({
                 type="button"
                 onClick={onClose}
                 disabled={loading}
-                className="rounded-lg border border-gray-300 px-4 py-2 text-gray-700 transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60"
+                className="rounded-lg border border-emerald-100 bg-white/75 px-4 py-2 text-gray-700 transition-colors hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {cancelLabel}
               </button>

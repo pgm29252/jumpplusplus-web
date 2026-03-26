@@ -17,6 +17,9 @@ export default function Calendar({
 }: CalendarProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
 
+  const monthStart = (date: Date) =>
+    new Date(date.getFullYear(), date.getMonth(), 1);
+
   const getDaysInMonth = (date: Date) =>
     new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
   const getFirstDayOfMonth = (date: Date) =>
@@ -52,6 +55,11 @@ export default function Calendar({
     month: "long",
     year: "numeric",
   });
+
+  const canGoPrev = monthStart(currentDate) > monthStart(minDate);
+  const canGoNext = maxDate
+    ? monthStart(currentDate) < monthStart(maxDate)
+    : true;
 
   const startOfDay = (d: Date) => {
     const copy = new Date(d);
@@ -89,25 +97,29 @@ export default function Calendar({
   };
 
   return (
-    <div className="min-h-[560px] rounded-2xl border border-gray-200 bg-white p-5 lg:p-6">
+    <div className="min-h-140 rounded-2xl border border-gray-200 bg-white p-5 lg:p-6">
       <div className="mb-6 flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-gray-900">{monthName}</h3>
+        <h3 className="rounded-xl border border-emerald-100 bg-emerald-50/70 px-3 py-1.5 text-sm font-semibold text-emerald-800 sm:text-base">
+          {monthName}
+        </h3>
         <div className="flex gap-2">
           <button
             type="button"
             onClick={prevMonth}
-            className="rounded-lg p-2 transition-colors hover:bg-gray-100"
+            disabled={!canGoPrev}
+            className="group inline-flex h-10 w-10 items-center justify-center rounded-xl border border-emerald-100 bg-white/80 text-emerald-700 shadow-sm transition-all hover:-translate-y-0.5 hover:bg-emerald-50 hover:shadow disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-300 disabled:shadow-none"
             aria-label="Previous month"
           >
-            <ChevronLeft className="w-5 h-5" />
+            <ChevronLeft className="h-5 w-5 transition-transform group-hover:-translate-x-0.5" />
           </button>
           <button
             type="button"
             onClick={nextMonth}
-            className="rounded-lg p-2 transition-colors hover:bg-gray-100"
+            disabled={!canGoNext}
+            className="group inline-flex h-10 w-10 items-center justify-center rounded-xl border border-emerald-100 bg-white/80 text-emerald-700 shadow-sm transition-all hover:-translate-y-0.5 hover:bg-emerald-50 hover:shadow disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-300 disabled:shadow-none"
             aria-label="Next month"
           >
-            <ChevronRight className="w-5 h-5" />
+            <ChevronRight className="h-5 w-5 transition-transform group-hover:translate-x-0.5" />
           </button>
         </div>
       </div>
