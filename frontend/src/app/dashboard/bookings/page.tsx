@@ -5,6 +5,8 @@ import { useSearchParams } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   CalendarDays,
+  ChevronLeft,
+  ChevronRight,
   Clock,
   DollarSign,
   Loader2,
@@ -47,6 +49,8 @@ function BookingsContent() {
   const [mapNote, setMapNote] = useState("");
   const [showTopFade, setShowTopFade] = useState(false);
   const [showBottomFade, setShowBottomFade] = useState(false);
+  const [modalGalleryIndex, setModalGalleryIndex] = useState(0);
+  const [modalSlideDirection, setModalSlideDirection] = useState(1);
   const eventsListRef = useRef<HTMLDivElement | null>(null);
   const today = useMemo(() => toStartOfDay(new Date()), []);
 
@@ -177,6 +181,38 @@ function BookingsContent() {
         : [],
     [events, selectedDate],
   );
+
+  const modalGalleryImages = useMemo(() => {
+    if (!selectedEvent) return [] as string[];
+
+    const images = [
+      selectedEvent.coverImageUrl,
+      selectedEvent.imageUrl,
+      ...(selectedEvent.previewImageUrls ?? []),
+    ].filter((value): value is string => Boolean(value));
+
+    return Array.from(new Set(images));
+  }, [selectedEvent]);
+
+  useEffect(() => {
+    setModalSlideDirection(1);
+    setModalGalleryIndex(0);
+  }, [showConfirmModal, selectedEvent?.id]);
+
+  const showPrevModalImage = () => {
+    if (modalGalleryImages.length === 0) return;
+    setModalSlideDirection(-1);
+    setModalGalleryIndex(
+      (prev) =>
+        (prev - 1 + modalGalleryImages.length) % modalGalleryImages.length,
+    );
+  };
+
+  const showNextModalImage = () => {
+    if (modalGalleryImages.length === 0) return;
+    setModalSlideDirection(1);
+    setModalGalleryIndex((prev) => (prev + 1) % modalGalleryImages.length);
+  };
 
   useEffect(() => {
     const updateEventListFade = () => {
@@ -517,16 +553,94 @@ function BookingsContent() {
               </div>
 
               <div className="max-h-[75vh] overflow-auto px-6 py-5">
-                {(selectedEvent.coverImageUrl || selectedEvent.imageUrl) && (
-                  <div className="mb-5 overflow-hidden rounded-xl border border-gray-200 bg-gray-100">
-                    <img
-                      src={
-                        selectedEvent.coverImageUrl || selectedEvent.imageUrl
-                      }
-                      alt={`${selectedEvent.title} preview`}
-                      className="h-48 w-full object-cover"
-                      loading="lazy"
-                    />
+                {modalGalleryImages.length > 0 && (
+                  <div className="mb-5">
+                    <div className="relative h-52 overflow-hidden rounded-xl border border-gray-200 bg-gray-100">
+                      <AnimatePresence
+                        custom={modalSlideDirection}
+                        initial={false}
+                        mode="wait"
+                      >
+                        <motion.img
+                          key={`${modalGalleryImages[modalGalleryIndex]}-${modalGalleryIndex}`}
+                          src={modalGalleryImages[modalGalleryIndex]}
+                          alt={`${selectedEvent.title} gallery image ${modalGalleryIndex + 1}`}
+                          className="absolute inset-0 h-full w-full object-cover"
+                          loading="lazy"
+                          custom={modalSlideDirection}
+                          initial={{
+                            x: modalSlideDirection > 0 ? 48 : -48,
+                            opacity: 0,
+                            scale: 1.02,
+                          }}
+                          animate={{ x: 0, opacity: 1, scale: 1 }}
+                          exit={{
+                            x: modalSlideDirection > 0 ? -48 : 48,
+                            opacity: 0,
+                            scale: 0.98,
+                          }}
+                          transition={{
+                            duration: 0.28,
+                            ease: [0.22, 1, 0.36, 1],
+                          }}
+                        />
+                      </AnimatePresence>
+
+                      {modalGalleryImages.length > 1 && (
+                        <>
+                          <button
+                            type="button"
+                            onClick={showPrevModalImage}
+                            className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-white/90 p-2 text-gray-700 shadow transition hover:bg-white"
+                            aria-label="Previous image"
+                          >
+                            <ChevronLeft className="h-4 w-4" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={showNextModalImage}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-white/90 p-2 text-gray-700 shadow transition hover:bg-white"
+                            aria-label="Next image"
+                          >
+                            <ChevronRight className="h-4 w-4" />
+                          </button>
+                          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-black/55 px-2.5 py-1 text-xs font-semibold text-white">
+                            {modalGalleryIndex + 1}/{modalGalleryImages.length}
+                          </div>
+                        </>
+                      )}
+                    </div>
+
+                    {modalGalleryImages.length > 1 && (
+                      <div className="mt-2 flex gap-2 overflow-x-auto pb-1">
+                        {modalGalleryImages.map((imgUrl, index) => (
+                          <button
+                            key={`${imgUrl}-${index}`}
+                            type="button"
+                            onClick={() => {
+                              if (index === modalGalleryIndex) return;
+                              setModalSlideDirection(
+                                index > modalGalleryIndex ? 1 : -1,
+                              );
+                              setModalGalleryIndex(index);
+                            }}
+                            className={`overflow-hidden rounded-lg border-2 transition ${
+                              modalGalleryIndex === index
+                                ? "border-indigo-500"
+                                : "border-transparent hover:border-gray-300"
+                            }`}
+                            aria-label={`View image ${index + 1}`}
+                          >
+                            <img
+                              src={imgUrl}
+                              alt={`${selectedEvent.title} thumbnail ${index + 1}`}
+                              className="h-14 w-20 object-cover"
+                              loading="lazy"
+                            />
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
 
