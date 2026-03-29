@@ -13,6 +13,9 @@ PRINT_EFFECTIVE_ENV=false
 
 for arg in "$@"; do
   case "$arg" in
+    --update)
+      BUILD_FLAG="--build"
+      ;;
     --no-build)
       BUILD_FLAG=""
       ;;
@@ -27,6 +30,7 @@ for arg in "$@"; do
 Usage: ./deploy-production.sh [options]
 
 Options:
+  --update     Rebuild images and redeploy containers (default behavior)
   --no-build   Start containers without rebuilding images
   --logs       Follow nginx/backend logs after deployment
   --print-effective-env  Print resolved env values before deploy
