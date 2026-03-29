@@ -190,36 +190,37 @@ fi
 
 apply_local_defaults
 
-# Load env vars from file for validation only.
-set -a
-# shellcheck disable=SC1090
-source "$ENV_FILE"
-set +a
+POSTGRES_DB_VALUE="$(read_env_value "$ENV_FILE" "POSTGRES_DB" || true)"
+POSTGRES_USER_VALUE="$(read_env_value "$ENV_FILE" "POSTGRES_USER" || true)"
+POSTGRES_PASSWORD_VALUE="$(read_env_value "$ENV_FILE" "POSTGRES_PASSWORD" || true)"
+JWT_SECRET_VALUE="$(read_env_value "$ENV_FILE" "JWT_SECRET" || true)"
+FRONTEND_URL_VALUE="$(read_env_value "$ENV_FILE" "FRONTEND_URL" || true)"
+NEXT_PUBLIC_API_URL_VALUE="$(read_env_value "$ENV_FILE" "NEXT_PUBLIC_API_URL" || true)"
 
-[ -n "${POSTGRES_DB:-}" ] || fail "POSTGRES_DB is required in $ENV_FILE"
-[ -n "${POSTGRES_USER:-}" ] || fail "POSTGRES_USER is required in $ENV_FILE"
-[ -n "${POSTGRES_PASSWORD:-}" ] || fail "POSTGRES_PASSWORD is required in $ENV_FILE"
-[ -n "${JWT_SECRET:-}" ] || fail "JWT_SECRET is required in $ENV_FILE"
-[ -n "${FRONTEND_URL:-}" ] || fail "FRONTEND_URL is required in $ENV_FILE"
-[ -n "${NEXT_PUBLIC_API_URL:-}" ] || fail "NEXT_PUBLIC_API_URL is required in $ENV_FILE"
+[ -n "$POSTGRES_DB_VALUE" ] || fail "POSTGRES_DB is required in $ENV_FILE"
+[ -n "$POSTGRES_USER_VALUE" ] || fail "POSTGRES_USER is required in $ENV_FILE"
+[ -n "$POSTGRES_PASSWORD_VALUE" ] || fail "POSTGRES_PASSWORD is required in $ENV_FILE"
+[ -n "$JWT_SECRET_VALUE" ] || fail "JWT_SECRET is required in $ENV_FILE"
+[ -n "$FRONTEND_URL_VALUE" ] || fail "FRONTEND_URL is required in $ENV_FILE"
+[ -n "$NEXT_PUBLIC_API_URL_VALUE" ] || fail "NEXT_PUBLIC_API_URL is required in $ENV_FILE"
 
-if [ "${POSTGRES_PASSWORD}" = "change-me-strong-password" ]; then
+if [ "$POSTGRES_PASSWORD_VALUE" = "change-me-strong-password" ]; then
   fail "POSTGRES_PASSWORD is still a placeholder"
 fi
 
-if [ "${JWT_SECRET}" = "change-this-super-secret-jwt" ]; then
+if [ "$JWT_SECRET_VALUE" = "change-this-super-secret-jwt" ]; then
   fail "JWT_SECRET is still a placeholder"
 fi
 
 if [ "$PRINT_EFFECTIVE_ENV" = true ]; then
   log "Effective environment values"
   printf 'ENV_FILE=%s\n' "$ENV_FILE"
-  printf 'POSTGRES_DB=%s\n' "$POSTGRES_DB"
-  printf 'POSTGRES_USER=%s\n' "$POSTGRES_USER"
-  printf 'POSTGRES_PASSWORD=%s\n' "$(mask_secret "$POSTGRES_PASSWORD")"
-  printf 'JWT_SECRET=%s\n' "$(mask_secret "$JWT_SECRET")"
-  printf 'FRONTEND_URL=%s\n' "$FRONTEND_URL"
-  printf 'NEXT_PUBLIC_API_URL=%s\n' "$NEXT_PUBLIC_API_URL"
+  printf 'POSTGRES_DB=%s\n' "$POSTGRES_DB_VALUE"
+  printf 'POSTGRES_USER=%s\n' "$POSTGRES_USER_VALUE"
+  printf 'POSTGRES_PASSWORD=%s\n' "$(mask_secret "$POSTGRES_PASSWORD_VALUE")"
+  printf 'JWT_SECRET=%s\n' "$(mask_secret "$JWT_SECRET_VALUE")"
+  printf 'FRONTEND_URL=%s\n' "$FRONTEND_URL_VALUE"
+  printf 'NEXT_PUBLIC_API_URL=%s\n' "$NEXT_PUBLIC_API_URL_VALUE"
   printf 'BUILD_IMAGES=%s\n' "$([ -n "$BUILD_FLAG" ] && echo yes || echo no)"
 fi
 
