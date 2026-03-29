@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { api, Event } from "@/lib/api";
 import ActionConfirmModal from "../../../components/ui/ActionConfirmModal";
 import ToastNotice from "@/components/ui/ToastNotice";
+import DashboardPageLayout from "@/components/dashboard/DashboardPageLayout";
 import {
   modalBackdropVariants,
   modalContainerVariants,
@@ -481,7 +482,12 @@ export default function ManageEventsPage() {
 
   // ──────────────────────────────────────────────
   return (
-    <div className="brand-surface mx-auto max-w-6xl p-6">
+    <DashboardPageLayout
+      breadcrumbItems={[
+        { label: "Dashboard", href: "/dashboard" },
+        { label: "Manage Events" },
+      ]}
+    >
       {/* Header */}
       <div className="brand-glass mb-6 flex items-center justify-between rounded-3xl px-6 py-5">
         <div>
@@ -1223,6 +1229,6 @@ export default function ManageEventsPage() {
             : "Failed to save event"
         }
       />
-    </div>
+    </DashboardPageLayout>
   );
 }

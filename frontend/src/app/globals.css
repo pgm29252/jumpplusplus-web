@@ -81,3 +81,8 @@ input, textarea, select {
 ::-webkit-scrollbar-thumb:hover {
   background: #9ca3af;
 }
+
+/* Keep SunEditor fullscreen above dashboard/layout layers */
+.sun-editor.se-full-screen {
+  z-index: 2147483647 !important;
+}

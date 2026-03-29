@@ -12,6 +12,7 @@ import userRoutes from "./routes/users";
 import eventRoutes from "./routes/events";
 import bookingRoutes from "./routes/bookings";
 import uploadRoutes from "./routes/uploads";
+import blogRoutes from "./routes/blogs";
 
 const app = express();
 
@@ -64,6 +65,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/events", eventRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/uploads", uploadRoutes);
+app.use("/api/blogs", blogRoutes);
 
 // 404 handler
 app.use((_req, res) => {

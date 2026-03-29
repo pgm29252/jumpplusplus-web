@@ -19,6 +19,7 @@ import { api, Booking } from "@/lib/api";
 import ActionConfirmModal from "../../../components/ui/ActionConfirmModal";
 import ToastNotice from "@/components/ui/ToastNotice";
 import { formatDate } from "@/lib/utils";
+import DashboardPageLayout from "@/components/dashboard/DashboardPageLayout";
 
 export default function MyBookingsPage() {
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -181,8 +182,12 @@ export default function MyBookingsPage() {
   }
 
   return (
-    <div className="brand-surface min-h-screen p-6">
-      <div className="max-w-5xl mx-auto">
+    <DashboardPageLayout
+      breadcrumbItems={[
+        { label: "Dashboard", href: "/dashboard" },
+        { label: "My Bookings" },
+      ]}
+    >
         {/* Header */}
         <div className="brand-glass mb-8 rounded-3xl px-6 py-5">
           <div className="mb-4 flex items-center justify-between">
@@ -422,7 +427,6 @@ export default function MyBookingsPage() {
             )}
           </div>
         )}
-      </div>
 
       <AnimatePresence>
         {mapBooking && (
@@ -556,6 +560,6 @@ export default function MyBookingsPage() {
           if (!cancelling) setBookingToCancel(null);
         }}
       />
-    </div>
+    </DashboardPageLayout>
   );
 }

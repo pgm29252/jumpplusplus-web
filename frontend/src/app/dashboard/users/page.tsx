@@ -22,6 +22,7 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import { cn, formatDate, getRoleColor } from "@/lib/utils";
 import { useRouter } from "next/navigation";
+import DashboardPageLayout from "@/components/dashboard/DashboardPageLayout";
 
 type EditData = {
   name: string;
@@ -238,7 +239,12 @@ export default function UsersPage() {
   );
 
   return (
-    <div className="brand-surface rounded-3xl p-1">
+    <DashboardPageLayout
+      breadcrumbItems={[
+        { label: "Dashboard", href: "/dashboard" },
+        { label: "User Management" },
+      ]}
+    >
       {editingUser && (
         <EditModal
           user={editingUser}
@@ -492,6 +498,6 @@ export default function UsersPage() {
           </>
         )}
       </div>
-    </div>
+    </DashboardPageLayout>
   );
 }

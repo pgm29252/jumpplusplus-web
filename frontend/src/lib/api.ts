@@ -186,6 +186,48 @@ export const api = {
       );
     },
   },
+  blogs: {
+    list: () => request<{ success: boolean; blogs: Blog[] }>("/api/blogs"),
+    listAll: () =>
+      request<{ success: boolean; blogs: Blog[] }>("/api/blogs/admin/all"),
+    get: (idOrSlug: string) =>
+      request<{ success: boolean; blog: Blog }>(`/api/blogs/${idOrSlug}`),
+    getById: (id: string) =>
+      request<{ success: boolean; blog: Blog }>(`/api/blogs/admin/${id}`),
+    create: (body: {
+      title: string;
+      excerpt?: string;
+      content: string;
+      coverImageUrl?: string;
+      isPublished?: boolean;
+    }) =>
+      request<{ success: boolean; blog: Blog }>("/api/blogs", {
+        method: "POST",
+        body: JSON.stringify(body),
+      }),
+    update: (
+      id: string,
+      body: {
+        title?: string;
+        excerpt?: string;
+        content?: string;
+        coverImageUrl?: string;
+        isPublished?: boolean;
+      },
+    ) =>
+      request<{ success: boolean; blog: Blog }>(`/api/blogs/${id}`, {
+        method: "PATCH",
+        body: JSON.stringify(body),
+      }),
+    remove: (id: string) =>
+      request<{ success: boolean; message: string }>(`/api/blogs/${id}`, {
+        method: "DELETE",
+      }),
+    duplicate: (id: string) =>
+      request<{ success: boolean; blog: Blog }>(`/api/blogs/${id}/duplicate`, {
+        method: "POST",
+      }),
+  },
 };
 
 export interface User {
@@ -250,4 +292,21 @@ export interface Booking {
     price: number;
   };
   user?: { id: string; name: string; email: string };
+}
+
+export interface Blog {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt?: string;
+  content?: string;
+  coverImageUrl?: string;
+  isPublished?: boolean;
+  createdAt: string;
+  updatedAt?: string;
+  author: {
+    id: string;
+    name: string;
+    email?: string;
+  };
 }

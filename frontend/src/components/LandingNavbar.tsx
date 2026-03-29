@@ -7,17 +7,27 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import BrandLogo from "@/components/BrandLogo";
 
-export default function LandingNavbar() {
+type NavItem = {
+  href: string;
+  label: string;
+};
+
+type LandingNavbarProps = {
+  navItems?: NavItem[];
+};
+
+export default function LandingNavbar({ navItems }: LandingNavbarProps) {
   const { user, loading, logout } = useAuth();
   const [loggingOut, setLoggingOut] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const navRef = useRef<HTMLElement>(null);
 
-  const navItems = [
-    { href: "#events", label: "Events" },
-    { href: "#features", label: "Features" },
-    { href: "#pricing", label: "Pricing" },
-    { href: "#testimonials", label: "Reviews" },
+  const links: NavItem[] = navItems ?? [
+    { href: "/#events", label: "Events" },
+    { href: "/#features", label: "Features" },
+    { href: "/#testimonials", label: "Testimonials" },
+    { href: "/#pricing", label: "Pricing" },
+    { href: "/#blogs", label: "Blogs" },
   ];
 
   const handleLogout = async () => {
@@ -27,6 +37,36 @@ export default function LandingNavbar() {
       await logout();
     } finally {
       setLoggingOut(false);
+    }
+  };
+
+  const handleNavLinkClick = (
+    event: React.MouseEvent<HTMLAnchorElement>,
+    href: string,
+    closeMenu = false,
+  ) => {
+    if (
+      event.defaultPrevented ||
+      event.button !== 0 ||
+      event.metaKey ||
+      event.ctrlKey ||
+      event.shiftKey ||
+      event.altKey
+    ) {
+      return;
+    }
+
+    if (closeMenu) setMenuOpen(false);
+
+    // Smooth scroll for section links while already on home.
+    if (href.startsWith("/#") && window.location.pathname === "/") {
+      event.preventDefault();
+      const id = href.slice(2);
+      const target = document.getElementById(id);
+      if (target) {
+        target.scrollIntoView({ behavior: "smooth", block: "start" });
+        window.history.replaceState(null, "", href);
+      }
     }
   };
 
@@ -63,17 +103,24 @@ export default function LandingNavbar() {
       className="fixed top-0 inset-x-0 z-50 border-b border-emerald-100/70 bg-white/70 backdrop-blur-md"
     >
       <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-        <BrandLogo textClassName="text-lg" />
+        <Link
+          href="/"
+          onClick={(event) => handleNavLinkClick(event, "/")}
+          className="transition-opacity hover:opacity-90"
+        >
+          <BrandLogo textClassName="text-lg" />
+        </Link>
 
         <div className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600">
-          {navItems.map((item) => (
-            <a
+          {links.map((item) => (
+            <Link
               key={item.href}
               href={item.href}
+              onClick={(event) => handleNavLinkClick(event, item.href)}
               className="hover:text-gray-900 transition-colors"
             >
               {item.label}
-            </a>
+            </Link>
           ))}
         </div>
 
@@ -87,6 +134,7 @@ export default function LandingNavbar() {
             <>
               <Link
                 href="/dashboard"
+                onClick={(event) => handleNavLinkClick(event, "/dashboard")}
                 className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors px-4 py-2"
               >
                 Dashboard
@@ -95,7 +143,7 @@ export default function LandingNavbar() {
                 type="button"
                 onClick={handleLogout}
                 disabled={loggingOut}
-                className="text-sm font-semibold bg-gradient-to-r from-rose-500 to-pink-600 text-white px-5 py-2.5 rounded-xl hover:opacity-90 transition-opacity shadow-sm disabled:opacity-60"
+                className="text-sm font-semibold bg-linear-to-r from-rose-500 to-pink-600 text-white px-5 py-2.5 rounded-xl hover:opacity-90 transition-opacity shadow-sm disabled:opacity-60"
               >
                 {loggingOut ? "Signing out..." : "Sign Out"}
               </button>
@@ -104,12 +152,18 @@ export default function LandingNavbar() {
             <>
               <Link
                 href="/auth/sign-in?force=1"
+                onClick={(event) =>
+                  handleNavLinkClick(event, "/auth/sign-in?force=1")
+                }
                 className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors px-4 py-2"
               >
                 Sign In
               </Link>
               <Link
                 href="/auth/sign-up?force=1"
+                onClick={(event) =>
+                  handleNavLinkClick(event, "/auth/sign-up?force=1")
+                }
                 className="text-sm font-semibold bg-linear-to-r from-emerald-700 to-teal-600 text-white px-5 py-2.5 rounded-xl hover:opacity-90 transition-opacity shadow-sm"
               >
                 Get Started
@@ -153,15 +207,17 @@ export default function LandingNavbar() {
             className="md:hidden border-t border-gray-100 bg-white/95 px-6 py-4 backdrop-blur-md"
           >
             <div className="space-y-1">
-              {navItems.map((item) => (
-                <a
+              {links.map((item) => (
+                <Link
                   key={item.href}
                   href={item.href}
-                  onClick={() => setMenuOpen(false)}
+                  onClick={(event) =>
+                    handleNavLinkClick(event, item.href, true)
+                  }
                   className="block rounded-lg px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 hover:text-gray-900"
                 >
                   {item.label}
-                </a>
+                </Link>
               ))}
             </div>
 
@@ -172,10 +228,12 @@ export default function LandingNavbar() {
                   Checking session...
                 </div>
               ) : user ? (
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 gap-2">
                   <Link
                     href="/dashboard"
-                    onClick={() => setMenuOpen(false)}
+                    onClick={(event) =>
+                      handleNavLinkClick(event, "/dashboard", true)
+                    }
                     className="rounded-xl border border-gray-200 px-3 py-2 text-center text-sm font-medium text-gray-700 hover:bg-gray-50"
                   >
                     Dashboard
@@ -184,7 +242,7 @@ export default function LandingNavbar() {
                     type="button"
                     onClick={handleLogout}
                     disabled={loggingOut}
-                    className="rounded-xl bg-gradient-to-r from-rose-500 to-pink-600 px-3 py-2 text-sm font-semibold text-white shadow-sm disabled:opacity-60"
+                    className="rounded-xl bg-linear-to-r from-rose-500 to-pink-600 px-3 py-2 text-sm font-semibold text-white shadow-sm disabled:opacity-60"
                   >
                     {loggingOut ? "Signing out..." : "Sign Out"}
                   </button>
@@ -193,14 +251,18 @@ export default function LandingNavbar() {
                 <div className="grid grid-cols-2 gap-2">
                   <Link
                     href="/auth/sign-in?force=1"
-                    onClick={() => setMenuOpen(false)}
+                    onClick={(event) =>
+                      handleNavLinkClick(event, "/auth/sign-in?force=1", true)
+                    }
                     className="rounded-xl border border-gray-200 px-3 py-2 text-center text-sm font-medium text-gray-700 hover:bg-gray-50"
                   >
                     Sign In
                   </Link>
                   <Link
                     href="/auth/sign-up?force=1"
-                    onClick={() => setMenuOpen(false)}
+                    onClick={(event) =>
+                      handleNavLinkClick(event, "/auth/sign-up?force=1", true)
+                    }
                     className="rounded-xl bg-linear-to-r from-emerald-700 to-teal-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm"
                   >
                     Get Started

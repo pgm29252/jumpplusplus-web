@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import ActionConfirmModal from "@/components/ui/ActionConfirmModal";
 import ToastNotice from "@/components/ui/ToastNotice";
 import { formatDate } from "@/lib/utils";
+import DashboardPageLayout from "@/components/dashboard/DashboardPageLayout";
 
 export default function ManageBookingsPage() {
   const { user, loading } = useAuth();
@@ -89,7 +90,12 @@ export default function ManageBookingsPage() {
   }
 
   return (
-    <div className="brand-surface mx-auto max-w-6xl p-6">
+    <DashboardPageLayout
+      breadcrumbItems={[
+        { label: "Dashboard", href: "/dashboard" },
+        { label: "Manage Bookings" },
+      ]}
+    >
       <div className="brand-glass mb-6 rounded-3xl px-6 py-5">
         <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700/80">
           Booking Admin
@@ -292,6 +298,6 @@ export default function ManageBookingsPage() {
           </div>
         </div>
       )}
-    </div>
+    </DashboardPageLayout>
   );
 }

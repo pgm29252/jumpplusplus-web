@@ -1,5 +1,6 @@
 import Link from "next/link";
 import PublicEventsSection from "@/components/PublicEventsSection";
+import LandingBlogsSection from "@/components/LandingBlogsSection";
 import LandingNavbar from "@/components/LandingNavbar";
 import LandingHeroAuthContent from "@/components/LandingHeroAuthContent";
 import BrandLogo from "@/components/BrandLogo";
@@ -223,6 +224,7 @@ export default function LandingPage() {
       </section>
 
       <PublicEventsSection />
+      <LandingBlogsSection />
 
       {/* FEATURES */}
       <section id="features" className="py-24 px-6">

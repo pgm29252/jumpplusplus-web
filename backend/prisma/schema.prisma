@@ -35,6 +35,22 @@ model User {
   auditLogs  AuditLog[]
   events     Event[]
   bookings   Booking[]
+  blogs      Blog[]
+}
+
+model Blog {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  excerpt     String?
+  content     String
+  coverImageUrl String?
+  isPublished Boolean  @default(true)
+  authorId    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
 }
 
 model Session {

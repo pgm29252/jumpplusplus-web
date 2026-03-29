@@ -18,6 +18,7 @@ import {
 import { api, Event } from "@/lib/api";
 import Calendar from "@/components/Calendar";
 import { formatDate } from "@/lib/utils";
+import DashboardPageLayout from "@/components/dashboard/DashboardPageLayout";
 
 function toStartOfDay(date: Date) {
   const d = new Date(date);
@@ -306,8 +307,12 @@ function BookingsContent() {
   }
 
   return (
-    <div className="brand-surface min-h-screen p-6">
-      <div className="max-w-7xl mx-auto">
+    <DashboardPageLayout
+      breadcrumbItems={[
+        { label: "Dashboard", href: "/dashboard" },
+        { label: "Book an Event" },
+      ]}
+    >
         {/* Header */}
         <div className="brand-glass mb-8 rounded-3xl px-6 py-5">
           <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700/80">
@@ -520,7 +525,6 @@ function BookingsContent() {
             <p className="text-sm font-medium">{success}</p>
           </div>
         )}
-      </div>
 
       <AnimatePresence>
         {showConfirmModal && selectedEvent && selectedDate && (
@@ -774,7 +778,7 @@ function BookingsContent() {
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </DashboardPageLayout>
   );
 }
 

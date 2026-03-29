@@ -48,6 +48,12 @@ jumpplusplus/
 - Calendar UI to pick date and time
 - My bookings page with status and cancellation
 
+### Blogs
+
+- Create blog posts (Admin/Moderator)
+- Public blog feed
+- Blog detail page by slug/id
+
 ### UI
 
 - Landing page
@@ -90,6 +96,12 @@ jumpplusplus/
 - GET /api/bookings/admin/all
 - POST /api/bookings
 - PATCH /api/bookings/:id/cancel
+
+### Blogs
+
+- GET /api/blogs
+- GET /api/blogs/:idOrSlug
+- POST /api/blogs
 
 ## Quick Start
 

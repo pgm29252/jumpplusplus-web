@@ -13,6 +13,7 @@ import {
   BookOpen,
   Settings2,
   Loader2,
+  PenSquare,
 } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
@@ -45,6 +46,13 @@ const navItems = [
     href: "/dashboard/manage-bookings",
     label: "Manage Bookings",
     icon: Calendar,
+    staffOnly: true,
+    group: "management",
+  },
+  {
+    href: "/dashboard/blogs",
+    label: "Manage Blogs",
+    icon: PenSquare,
     staffOnly: true,
     group: "management",
   },
