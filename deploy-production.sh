@@ -10,6 +10,7 @@ COMPOSE_FILE="$ROOT_DIR/docker-compose.yml"
 BUILD_FLAG="--build"
 FOLLOW_LOGS=false
 PRINT_EFFECTIVE_ENV=false
+RUNTIME_ENV_FILE=""
 
 for arg in "$@"; do
   case "$arg" in
@@ -118,6 +119,41 @@ fill_if_missing_or_placeholder() {
   fi
 }
 
+prepare_runtime_env_file() {
+  local source_file="$1"
+  local runtime_file="$ROOT_DIR/.env.production.runtime"
+
+  : >"$runtime_file"
+
+  local line_no=0
+  while IFS= read -r line || [ -n "$line" ]; do
+    line_no=$((line_no + 1))
+
+    # Keep comments and empty lines as-is.
+    if [[ "$line" =~ ^[[:space:]]*$ ]] || [[ "$line" =~ ^[[:space:]]*# ]]; then
+      printf '%s\n' "$line" >>"$runtime_file"
+      continue
+    fi
+
+    # Common accidental Vim command: treat `wq# ...` as comment.
+    if [[ "$line" =~ ^[[:space:]]*wq# ]]; then
+      printf '#%s\n' "${line#*wq#}" >>"$runtime_file"
+      log "Normalized accidental 'wq#' on line ${line_no} in ${source_file}"
+      continue
+    fi
+
+    # Valid env keys for compose env-file: KEY=VALUE.
+    if [[ "$line" =~ ^[[:space:]]*[A-Za-z_][A-Za-z0-9_]*= ]]; then
+      printf '%s\n' "$line" >>"$runtime_file"
+      continue
+    fi
+
+    fail "Invalid env line ${line_no} in ${source_file}: ${line}"
+  done <"$source_file"
+
+  RUNTIME_ENV_FILE="$runtime_file"
+}
+
 apply_local_defaults() {
   local local_jwt_secret=""
   local local_frontend_url=""
@@ -190,12 +226,14 @@ fi
 
 apply_local_defaults
 
-POSTGRES_DB_VALUE="$(read_env_value "$ENV_FILE" "POSTGRES_DB" || true)"
-POSTGRES_USER_VALUE="$(read_env_value "$ENV_FILE" "POSTGRES_USER" || true)"
-POSTGRES_PASSWORD_VALUE="$(read_env_value "$ENV_FILE" "POSTGRES_PASSWORD" || true)"
-JWT_SECRET_VALUE="$(read_env_value "$ENV_FILE" "JWT_SECRET" || true)"
-FRONTEND_URL_VALUE="$(read_env_value "$ENV_FILE" "FRONTEND_URL" || true)"
-NEXT_PUBLIC_API_URL_VALUE="$(read_env_value "$ENV_FILE" "NEXT_PUBLIC_API_URL" || true)"
+prepare_runtime_env_file "$ENV_FILE"
+
+POSTGRES_DB_VALUE="$(read_env_value "$RUNTIME_ENV_FILE" "POSTGRES_DB" || true)"
+POSTGRES_USER_VALUE="$(read_env_value "$RUNTIME_ENV_FILE" "POSTGRES_USER" || true)"
+POSTGRES_PASSWORD_VALUE="$(read_env_value "$RUNTIME_ENV_FILE" "POSTGRES_PASSWORD" || true)"
+JWT_SECRET_VALUE="$(read_env_value "$RUNTIME_ENV_FILE" "JWT_SECRET" || true)"
+FRONTEND_URL_VALUE="$(read_env_value "$RUNTIME_ENV_FILE" "FRONTEND_URL" || true)"
+NEXT_PUBLIC_API_URL_VALUE="$(read_env_value "$RUNTIME_ENV_FILE" "NEXT_PUBLIC_API_URL" || true)"
 
 [ -n "$POSTGRES_DB_VALUE" ] || fail "POSTGRES_DB is required in $ENV_FILE"
 [ -n "$POSTGRES_USER_VALUE" ] || fail "POSTGRES_USER is required in $ENV_FILE"
@@ -227,14 +265,14 @@ fi
 log "Deploying production stack using $ENV_FILE"
 cd "$ROOT_DIR"
 
-docker compose --env-file "$ENV_FILE" up -d ${BUILD_FLAG}
+docker compose --env-file "$RUNTIME_ENV_FILE" up -d ${BUILD_FLAG}
 
 log "Deployment complete. Current status:"
-docker compose --env-file "$ENV_FILE" ps
+docker compose --env-file "$RUNTIME_ENV_FILE" ps
 
 if [ "$FOLLOW_LOGS" = true ]; then
   log "Following nginx and backend logs (Ctrl+C to stop)..."
-  docker compose --env-file "$ENV_FILE" logs -f nginx backend
+  docker compose --env-file "$RUNTIME_ENV_FILE" logs -f nginx backend
 else
   log "Tip: run './deploy-production.sh --logs' to follow logs"
 fi
