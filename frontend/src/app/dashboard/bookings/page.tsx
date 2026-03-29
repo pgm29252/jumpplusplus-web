@@ -313,218 +313,216 @@ function BookingsContent() {
         { label: "Book an Event" },
       ]}
     >
-        {/* Header */}
-        <div className="brand-glass mb-8 rounded-3xl px-6 py-5">
-          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700/80">
-            Booking Workspace
-          </p>
-          <h1 className="mb-1 text-3xl font-extrabold text-gray-900">
-            Book an Event
-          </h1>
-          <p className="text-sm text-gray-600 sm:text-base">
-            Choose an event, preview details, and confirm your preferred slot.
-          </p>
+      {/* Header */}
+      <div className="brand-glass mb-8 rounded-3xl px-6 py-5">
+        <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700/80">
+          Booking Workspace
+        </p>
+        <h1 className="mb-1 text-3xl font-extrabold text-gray-900">
+          Book an Event
+        </h1>
+        <p className="text-sm text-gray-600 sm:text-base">
+          Choose an event, preview details, and confirm your preferred slot.
+        </p>
+      </div>
+
+      {error && (
+        <div className="mb-6 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-rose-700">
+          {error}
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
+        <div className="lg:col-span-3 lg:sticky lg:top-6">
+          {/* View My Bookings */}
+          <div className="mb-2">
+            <Link
+              href="/dashboard/my-bookings"
+              className="inline-flex items-center rounded-lg bg-linear-to-r from-emerald-700 to-teal-600 px-6 py-2 font-semibold text-white transition-opacity hover:opacity-90"
+            >
+              View My Bookings
+            </Link>
+          </div>
+
+          <Calendar
+            onSelectDate={setSelectedDate}
+            minDate={today}
+            selectedDate={selectedDate}
+          />
         </div>
 
-        {error && (
-          <div className="mb-6 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-rose-700">
-            {error}
-          </div>
-        )}
-
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
-          <div className="lg:col-span-3 lg:sticky lg:top-6">
-            {/* View My Bookings */}
-            <div className="mb-2">
-              <Link
-                href="/dashboard/my-bookings"
-                className="inline-flex items-center rounded-lg bg-linear-to-r from-emerald-700 to-teal-600 px-6 py-2 font-semibold text-white transition-opacity hover:opacity-90"
-              >
-                View My Bookings
-              </Link>
-            </div>
-
-            <Calendar
-              onSelectDate={setSelectedDate}
-              minDate={today}
-              selectedDate={selectedDate}
-            />
+        <div className="brand-glass lg:col-span-2 rounded-2xl p-4 sm:p-5">
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-lg font-bold text-gray-900">
+              Available Events
+            </h2>
+            {selectedDate && (
+              <span className="rounded-full border border-emerald-100 bg-white/80 px-3 py-1 text-xs font-semibold text-emerald-700">
+                {formatDate(selectedDate.toISOString())}
+              </span>
+            )}
           </div>
 
-          <div className="brand-glass lg:col-span-2 rounded-2xl p-4 sm:p-5">
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-lg font-bold text-gray-900">
-                Available Events
-              </h2>
-              {selectedDate && (
-                <span className="rounded-full border border-emerald-100 bg-white/80 px-3 py-1 text-xs font-semibold text-emerald-700">
-                  {formatDate(selectedDate.toISOString())}
-                </span>
-              )}
-            </div>
+          <div className="relative">
+            {showTopFade && (
+              <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-10 bg-gradient-to-b from-white via-white/75 to-transparent" />
+            )}
+            {showBottomFade && (
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-12 bg-gradient-to-t from-white via-white/80 to-transparent" />
+            )}
 
-            <div className="relative">
-              {showTopFade && (
-                <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-10 bg-gradient-to-b from-white via-white/75 to-transparent" />
-              )}
-              {showBottomFade && (
-                <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-12 bg-gradient-to-t from-white via-white/80 to-transparent" />
-              )}
+            <div
+              ref={eventsListRef}
+              onScroll={() => {
+                const element = eventsListRef.current;
+                if (!element) return;
 
-              <div
-                ref={eventsListRef}
-                onScroll={() => {
-                  const element = eventsListRef.current;
-                  if (!element) return;
+                const hasScrollableContent =
+                  element.scrollHeight > element.clientHeight + 1;
+                const isScrolledFromTop = element.scrollTop > 4;
+                const canScrollFurtherDown =
+                  element.scrollTop + element.clientHeight <
+                  element.scrollHeight - 4;
 
-                  const hasScrollableContent =
-                    element.scrollHeight > element.clientHeight + 1;
-                  const isScrolledFromTop = element.scrollTop > 4;
-                  const canScrollFurtherDown =
-                    element.scrollTop + element.clientHeight <
-                    element.scrollHeight - 4;
+                setShowTopFade(hasScrollableContent && isScrolledFromTop);
+                setShowBottomFade(hasScrollableContent && canScrollFurtherDown);
+              }}
+              className="space-y-4 max-h-[72vh] overflow-auto pr-1 pb-4 pt-3"
+            >
+              {!selectedDate ? (
+                <div className="rounded-xl border border-emerald-100 bg-white/70 py-12 text-center backdrop-blur-sm">
+                  <p className="text-gray-500">
+                    Select a date to see available events
+                  </p>
+                </div>
+              ) : events.length === 0 ? (
+                <div className="rounded-xl border border-emerald-100 bg-white/70 py-12 text-center backdrop-blur-sm">
+                  <p className="text-gray-500">No events available</p>
+                </div>
+              ) : eventsForSelectedDate.length === 0 ? (
+                <div className="rounded-xl border border-emerald-100 bg-white/70 py-12 text-center backdrop-blur-sm">
+                  <p className="text-gray-500">
+                    No events available on this date
+                  </p>
+                </div>
+              ) : (
+                eventsForSelectedDate.map((event) => (
+                  <div
+                    key={event.id}
+                    onClick={() => setSelectedEvent(event)}
+                    className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                      selectedEvent?.id === event.id
+                        ? "border-emerald-500 bg-linear-to-br from-emerald-50 to-teal-50 shadow-sm"
+                        : "border-emerald-100 bg-white/75 backdrop-blur-sm hover:-translate-y-0.5 hover:border-emerald-200"
+                    }`}
+                  >
+                    {(event.coverImageUrl || event.imageUrl) && (
+                      <div className="mb-3 overflow-hidden rounded-xl border border-gray-200 bg-gray-100">
+                        <img
+                          src={event.coverImageUrl || event.imageUrl}
+                          alt={`${event.title} preview`}
+                          className="h-28 w-full object-cover"
+                          loading="lazy"
+                        />
+                      </div>
+                    )}
 
-                  setShowTopFade(hasScrollableContent && isScrolledFromTop);
-                  setShowBottomFade(
-                    hasScrollableContent && canScrollFurtherDown,
-                  );
-                }}
-                className="space-y-4 max-h-[72vh] overflow-auto pr-1 pb-4 pt-3"
-              >
-                {!selectedDate ? (
-                  <div className="rounded-xl border border-emerald-100 bg-white/70 py-12 text-center backdrop-blur-sm">
-                    <p className="text-gray-500">
-                      Select a date to see available events
-                    </p>
-                  </div>
-                ) : events.length === 0 ? (
-                  <div className="rounded-xl border border-emerald-100 bg-white/70 py-12 text-center backdrop-blur-sm">
-                    <p className="text-gray-500">No events available</p>
-                  </div>
-                ) : eventsForSelectedDate.length === 0 ? (
-                  <div className="rounded-xl border border-emerald-100 bg-white/70 py-12 text-center backdrop-blur-sm">
-                    <p className="text-gray-500">
-                      No events available on this date
-                    </p>
-                  </div>
-                ) : (
-                  eventsForSelectedDate.map((event) => (
-                    <div
-                      key={event.id}
-                      onClick={() => setSelectedEvent(event)}
-                      className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                        selectedEvent?.id === event.id
-                          ? "border-emerald-500 bg-linear-to-br from-emerald-50 to-teal-50 shadow-sm"
-                          : "border-emerald-100 bg-white/75 backdrop-blur-sm hover:-translate-y-0.5 hover:border-emerald-200"
-                      }`}
-                    >
-                      {(event.coverImageUrl || event.imageUrl) && (
-                        <div className="mb-3 overflow-hidden rounded-xl border border-gray-200 bg-gray-100">
-                          <img
-                            src={event.coverImageUrl || event.imageUrl}
-                            alt={`${event.title} preview`}
-                            className="h-28 w-full object-cover"
-                            loading="lazy"
-                          />
-                        </div>
-                      )}
-
-                      {(event.previewImageUrls?.length ?? 0) > 0 && (
-                        <div className="mb-3 grid grid-cols-4 gap-1.5">
-                          {event.previewImageUrls?.slice(0, 4).map((url) => (
-                            <div
-                              key={url}
-                              className="overflow-hidden rounded-lg border border-gray-200 bg-gray-100"
-                            >
-                              <img
-                                src={url}
-                                alt={`${event.title} preview thumbnail`}
-                                className="h-12 w-full object-cover"
-                                loading="lazy"
-                              />
-                            </div>
-                          ))}
-                        </div>
-                      )}
-
-                      <div className="mb-2 flex items-start justify-between gap-3">
-                        <div>
-                          <h3 className="text-base font-semibold text-gray-900">
-                            {event.title}
-                          </h3>
-                          {event.description && (
-                            <p className="mt-1 line-clamp-2 text-sm text-gray-600">
-                              {event.description}
-                            </p>
-                          )}
-                        </div>
-                        {event.price > 0 && (
-                          <div className="flex items-center gap-1 rounded-lg bg-green-50 px-2.5 py-1 text-green-700">
-                            <DollarSign className="w-4 h-4" />
-                            <span className="font-semibold">{event.price}</span>
+                    {(event.previewImageUrls?.length ?? 0) > 0 && (
+                      <div className="mb-3 grid grid-cols-4 gap-1.5">
+                        {event.previewImageUrls?.slice(0, 4).map((url) => (
+                          <div
+                            key={url}
+                            className="overflow-hidden rounded-lg border border-gray-200 bg-gray-100"
+                          >
+                            <img
+                              src={url}
+                              alt={`${event.title} preview thumbnail`}
+                              className="h-12 w-full object-cover"
+                              loading="lazy"
+                            />
                           </div>
+                        ))}
+                      </div>
+                    )}
+
+                    <div className="mb-2 flex items-start justify-between gap-3">
+                      <div>
+                        <h3 className="text-base font-semibold text-gray-900">
+                          {event.title}
+                        </h3>
+                        {event.description && (
+                          <p className="mt-1 line-clamp-2 text-sm text-gray-600">
+                            {event.description}
+                          </p>
                         )}
                       </div>
-
-                      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-600">
-                        <div className="flex items-center gap-2">
-                          <Clock className="w-4 h-4" />
-                          {event.duration} minutes
+                      {event.price > 0 && (
+                        <div className="flex items-center gap-1 rounded-lg bg-green-50 px-2.5 py-1 text-green-700">
+                          <DollarSign className="w-4 h-4" />
+                          <span className="font-semibold">{event.price}</span>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <CalendarDays className="w-4 h-4" />
-                          {event.maxSlots} max slots
-                        </div>
-                      </div>
-
-                      {(event.startDate || event.endDate) && (
-                        <p className="mt-2 text-xs text-gray-500">
-                          Booking window:{" "}
-                          {event.startDate
-                            ? new Date(event.startDate).toLocaleDateString()
-                            : "-"}{" "}
-                          to{" "}
-                          {event.endDate
-                            ? new Date(event.endDate).toLocaleDateString()
-                            : "-"}
-                        </p>
                       )}
+                    </div>
 
-                      <div className="mt-4 flex items-center justify-between border-t border-gray-200 pt-3">
-                        <p className="text-xs text-gray-500">
-                          {selectedEvent?.id === event.id
-                            ? "Selected"
-                            : "Select this event to continue"}
-                        </p>
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSelectedEvent(event);
-                            setError("");
-                            setSuccess("");
-                            setShowConfirmModal(true);
-                          }}
-                          disabled={!selectedDate || booking}
-                          className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          Book Event
-                        </button>
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-600">
+                      <div className="flex items-center gap-2">
+                        <Clock className="w-4 h-4" />
+                        {event.duration} minutes
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CalendarDays className="w-4 h-4" />
+                        {event.maxSlots} max slots
                       </div>
                     </div>
-                  ))
-                )}
-              </div>
+
+                    {(event.startDate || event.endDate) && (
+                      <p className="mt-2 text-xs text-gray-500">
+                        Booking window:{" "}
+                        {event.startDate
+                          ? new Date(event.startDate).toLocaleDateString()
+                          : "-"}{" "}
+                        to{" "}
+                        {event.endDate
+                          ? new Date(event.endDate).toLocaleDateString()
+                          : "-"}
+                      </p>
+                    )}
+
+                    <div className="mt-4 flex items-center justify-between border-t border-gray-200 pt-3">
+                      <p className="text-xs text-gray-500">
+                        {selectedEvent?.id === event.id
+                          ? "Selected"
+                          : "Select this event to continue"}
+                      </p>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedEvent(event);
+                          setError("");
+                          setSuccess("");
+                          setShowConfirmModal(true);
+                        }}
+                        disabled={!selectedDate || booking}
+                        className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        Book Event
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </div>
         </div>
+      </div>
 
-        {success && (
-          <div className="mt-4 bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-xl flex items-start gap-2">
-            <CheckCircle2 className="w-5 h-5 mt-0.5" />
-            <p className="text-sm font-medium">{success}</p>
-          </div>
-        )}
+      {success && (
+        <div className="mt-4 bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-xl flex items-start gap-2">
+          <CheckCircle2 className="w-5 h-5 mt-0.5" />
+          <p className="text-sm font-medium">{success}</p>
+        </div>
+      )}
 
       <AnimatePresence>
         {showConfirmModal && selectedEvent && selectedDate && (

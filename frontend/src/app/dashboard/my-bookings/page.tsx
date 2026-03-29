@@ -188,245 +188,245 @@ export default function MyBookingsPage() {
         { label: "My Bookings" },
       ]}
     >
-        {/* Header */}
-        <div className="brand-glass mb-8 rounded-3xl px-6 py-5">
-          <div className="mb-4 flex items-center justify-between">
-            <div>
-              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700/80">
-                Booking Overview
-              </p>
-              <h1 className="mb-2 text-3xl font-extrabold text-gray-900">
-                My Bookings
-              </h1>
-              <p className="text-gray-600">Manage your event bookings</p>
-            </div>
-            <Link
-              href="/dashboard/bookings"
-              className="rounded-lg bg-linear-to-r from-emerald-700 to-teal-600 px-4 py-2 font-semibold text-white transition-opacity hover:opacity-90"
-            >
-              Book New Event
-            </Link>
+      {/* Header */}
+      <div className="brand-glass mb-8 rounded-3xl px-6 py-5">
+        <div className="mb-4 flex items-center justify-between">
+          <div>
+            <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700/80">
+              Booking Overview
+            </p>
+            <h1 className="mb-2 text-3xl font-extrabold text-gray-900">
+              My Bookings
+            </h1>
+            <p className="text-gray-600">Manage your event bookings</p>
           </div>
+          <Link
+            href="/dashboard/bookings"
+            className="rounded-lg bg-linear-to-r from-emerald-700 to-teal-600 px-4 py-2 font-semibold text-white transition-opacity hover:opacity-90"
+          >
+            Book New Event
+          </Link>
         </div>
+      </div>
 
-        {error && (
-          <div className="mb-4 bg-rose-50 border border-rose-200 text-rose-700 px-4 py-3 rounded-xl">
-            {error}
-          </div>
-        )}
+      {error && (
+        <div className="mb-4 bg-rose-50 border border-rose-200 text-rose-700 px-4 py-3 rounded-xl">
+          {error}
+        </div>
+      )}
 
-        {bookings.length === 0 ? (
-          <div className="brand-glass text-center py-12 rounded-xl">
-            <Calendar className="w-12 h-12 mx-auto text-gray-400 mb-3" />
-            <p className="text-gray-600 mb-4">No bookings yet</p>
-            <Link
-              href="/dashboard/bookings"
-              className="inline-block px-4 py-2 bg-emerald-600 text-white font-semibold rounded-lg hover:bg-emerald-700 transition-colors"
-            >
-              Book Your First Event
-            </Link>
-          </div>
-        ) : (
-          <div className="space-y-8">
-            {/* Upcoming */}
-            {upcomingBookings.length > 0 && (
-              <section>
-                <h2 className="text-xl font-bold text-gray-900 mb-4">
-                  Upcoming Bookings
-                </h2>
-                <div className="space-y-4">
-                  {upcomingBookings.map((booking) => (
-                    <div
-                      key={booking.id}
-                      className="brand-glass rounded-2xl p-6 transition-all hover:-translate-y-0.5 hover:shadow-md"
-                    >
-                      <div className="flex items-start justify-between mb-4">
-                        <div>
-                          <h3 className="text-lg font-semibold text-gray-900">
-                            {booking.event.title}
-                          </h3>
-                          {booking.notes && (
-                            <p className="text-sm text-gray-600 mt-1">
-                              {booking.notes}
-                            </p>
-                          )}
-                        </div>
-                        <div
-                          className={`flex items-center gap-2 px-3 py-1 rounded-lg text-sm font-medium ${getStatusColor(booking.status)}`}
-                        >
-                          {getStatusIcon(booking.status)}
-                          {booking.status}
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-4">
-                        <div className="flex items-center gap-2 text-gray-600">
-                          <Calendar className="w-4 h-4" />
-                          {formatDate(booking.startTime)}
-                        </div>
-                        <div className="flex items-center gap-2 text-gray-600">
-                          <Clock className="w-4 h-4" />
-                          {new Date(booking.startTime).toLocaleTimeString(
-                            "en-US",
-                            {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            },
-                          )}
-                        </div>
-                        <div className="flex items-center gap-2 text-gray-600">
-                          <Clock className="w-4 h-4" />
-                          {booking.event.duration} min
-                        </div>
-                        {booking.event.price > 0 && (
-                          <div className="flex items-center gap-2 text-gray-600">
-                            <DollarSign className="w-4 h-4" />$
-                            {booking.event.price}
-                          </div>
+      {bookings.length === 0 ? (
+        <div className="brand-glass text-center py-12 rounded-xl">
+          <Calendar className="w-12 h-12 mx-auto text-gray-400 mb-3" />
+          <p className="text-gray-600 mb-4">No bookings yet</p>
+          <Link
+            href="/dashboard/bookings"
+            className="inline-block px-4 py-2 bg-emerald-600 text-white font-semibold rounded-lg hover:bg-emerald-700 transition-colors"
+          >
+            Book Your First Event
+          </Link>
+        </div>
+      ) : (
+        <div className="space-y-8">
+          {/* Upcoming */}
+          {upcomingBookings.length > 0 && (
+            <section>
+              <h2 className="text-xl font-bold text-gray-900 mb-4">
+                Upcoming Bookings
+              </h2>
+              <div className="space-y-4">
+                {upcomingBookings.map((booking) => (
+                  <div
+                    key={booking.id}
+                    className="brand-glass rounded-2xl p-6 transition-all hover:-translate-y-0.5 hover:shadow-md"
+                  >
+                    <div className="flex items-start justify-between mb-4">
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-900">
+                          {booking.event.title}
+                        </h3>
+                        {booking.notes && (
+                          <p className="text-sm text-gray-600 mt-1">
+                            {booking.notes}
+                          </p>
                         )}
                       </div>
-
-                      <div className="flex flex-wrap items-center gap-4">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setCopiedCoords("idle");
-                            setMapBooking(booking);
-                          }}
-                          className="flex items-center gap-2 text-emerald-600 hover:text-emerald-700 font-medium text-sm"
-                        >
-                          <MapPinned className="w-4 h-4" />
-                          View Map
-                        </button>
-
-                        {booking.status === "CONFIRMED" &&
-                          new Date(booking.startTime) > new Date() && (
-                            <button
-                              onClick={() => setBookingToCancel(booking)}
-                              disabled={cancelling === booking.id}
-                              className="flex items-center gap-2 text-red-600 hover:text-red-700 font-medium text-sm disabled:opacity-60"
-                            >
-                              {cancelling === booking.id ? (
-                                <>
-                                  <Loader2 className="w-4 h-4 animate-spin" />
-                                  Cancelling...
-                                </>
-                              ) : (
-                                <>
-                                  <Trash2 className="w-4 h-4" />
-                                  Cancel Booking
-                                </>
-                              )}
-                            </button>
-                          )}
+                      <div
+                        className={`flex items-center gap-2 px-3 py-1 rounded-lg text-sm font-medium ${getStatusColor(booking.status)}`}
+                      >
+                        {getStatusIcon(booking.status)}
+                        {booking.status}
                       </div>
                     </div>
-                  ))}
-                </div>
-              </section>
-            )}
 
-            {/* Past */}
-            {pastBookings.length > 0 && (
-              <section>
-                <h2 className="text-xl font-bold text-gray-900 mb-4">
-                  Past Bookings
-                </h2>
-                <div className="space-y-4">
-                  {pastBookings.map((booking) => (
-                    <div
-                      key={booking.id}
-                      className="rounded-2xl border border-emerald-100/70 bg-white/60 p-6 backdrop-blur-sm"
-                    >
-                      <div className="flex items-start justify-between mb-4">
-                        <div>
-                          <h3 className="text-lg font-semibold text-gray-900">
-                            {booking.event.title}
-                          </h3>
-                        </div>
-                        <div
-                          className={`flex items-center gap-2 px-3 py-1 rounded-lg text-sm font-medium ${getStatusColor(booking.status)}`}
-                        >
-                          {getStatusIcon(booking.status)}
-                          {booking.status}
-                        </div>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-4">
+                      <div className="flex items-center gap-2 text-gray-600">
+                        <Calendar className="w-4 h-4" />
+                        {formatDate(booking.startTime)}
                       </div>
-                      <div className="flex items-center gap-4 text-sm text-gray-600">
-                        <div className="flex items-center gap-2">
-                          <Calendar className="w-4 h-4" />
-                          {formatDate(booking.startTime)}
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Clock className="w-4 h-4" />
-                          {new Date(booking.startTime).toLocaleTimeString(
-                            "en-US",
-                            {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            },
-                          )}
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setCopiedCoords("idle");
-                            setMapBooking(booking);
-                          }}
-                          className="flex items-center gap-2 text-emerald-600 hover:text-emerald-700 font-medium"
-                        >
-                          <MapPinned className="w-4 h-4" />
-                          View Map
-                        </button>
+                      <div className="flex items-center gap-2 text-gray-600">
+                        <Clock className="w-4 h-4" />
+                        {new Date(booking.startTime).toLocaleTimeString(
+                          "en-US",
+                          {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          },
+                        )}
                       </div>
+                      <div className="flex items-center gap-2 text-gray-600">
+                        <Clock className="w-4 h-4" />
+                        {booking.event.duration} min
+                      </div>
+                      {booking.event.price > 0 && (
+                        <div className="flex items-center gap-2 text-gray-600">
+                          <DollarSign className="w-4 h-4" />$
+                          {booking.event.price}
+                        </div>
+                      )}
                     </div>
-                  ))}
-                </div>
-              </section>
-            )}
 
-            {/* Cancelled */}
-            {cancelledBookings.length > 0 && (
-              <section>
-                <h2 className="text-xl font-bold text-gray-900 mb-4">
-                  Cancelled Bookings
-                </h2>
-                <div className="space-y-4">
-                  {cancelledBookings.map((booking) => (
-                    <div
-                      key={booking.id}
-                      className="rounded-2xl border border-rose-200 bg-rose-50/75 p-6 backdrop-blur-sm"
-                    >
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <h3 className="text-lg font-semibold text-gray-900">
-                            {booking.event.title}
-                          </h3>
-                          <p className="text-sm text-gray-600 mt-1">
-                            Cancelled on {formatDate(booking.createdAt)}
-                          </p>
+                    <div className="flex flex-wrap items-center gap-4">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setCopiedCoords("idle");
+                          setMapBooking(booking);
+                        }}
+                        className="flex items-center gap-2 text-emerald-600 hover:text-emerald-700 font-medium text-sm"
+                      >
+                        <MapPinned className="w-4 h-4" />
+                        View Map
+                      </button>
+
+                      {booking.status === "CONFIRMED" &&
+                        new Date(booking.startTime) > new Date() && (
                           <button
-                            type="button"
-                            onClick={() => {
-                              setCopiedCoords("idle");
-                              setMapBooking(booking);
-                            }}
-                            className="mt-2 inline-flex items-center gap-2 text-emerald-600 hover:text-emerald-700 font-medium text-sm"
+                            onClick={() => setBookingToCancel(booking)}
+                            disabled={cancelling === booking.id}
+                            className="flex items-center gap-2 text-red-600 hover:text-red-700 font-medium text-sm disabled:opacity-60"
                           >
-                            <MapPinned className="w-4 h-4" />
-                            View Map
+                            {cancelling === booking.id ? (
+                              <>
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                                Cancelling...
+                              </>
+                            ) : (
+                              <>
+                                <Trash2 className="w-4 h-4" />
+                                Cancel Booking
+                              </>
+                            )}
                           </button>
-                        </div>
-                        <span className="px-3 py-1 rounded-lg text-sm font-medium bg-red-100 text-red-700">
-                          CANCELLED
-                        </span>
+                        )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* Past */}
+          {pastBookings.length > 0 && (
+            <section>
+              <h2 className="text-xl font-bold text-gray-900 mb-4">
+                Past Bookings
+              </h2>
+              <div className="space-y-4">
+                {pastBookings.map((booking) => (
+                  <div
+                    key={booking.id}
+                    className="rounded-2xl border border-emerald-100/70 bg-white/60 p-6 backdrop-blur-sm"
+                  >
+                    <div className="flex items-start justify-between mb-4">
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-900">
+                          {booking.event.title}
+                        </h3>
+                      </div>
+                      <div
+                        className={`flex items-center gap-2 px-3 py-1 rounded-lg text-sm font-medium ${getStatusColor(booking.status)}`}
+                      >
+                        {getStatusIcon(booking.status)}
+                        {booking.status}
                       </div>
                     </div>
-                  ))}
-                </div>
-              </section>
-            )}
-          </div>
-        )}
+                    <div className="flex items-center gap-4 text-sm text-gray-600">
+                      <div className="flex items-center gap-2">
+                        <Calendar className="w-4 h-4" />
+                        {formatDate(booking.startTime)}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Clock className="w-4 h-4" />
+                        {new Date(booking.startTime).toLocaleTimeString(
+                          "en-US",
+                          {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          },
+                        )}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setCopiedCoords("idle");
+                          setMapBooking(booking);
+                        }}
+                        className="flex items-center gap-2 text-emerald-600 hover:text-emerald-700 font-medium"
+                      >
+                        <MapPinned className="w-4 h-4" />
+                        View Map
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* Cancelled */}
+          {cancelledBookings.length > 0 && (
+            <section>
+              <h2 className="text-xl font-bold text-gray-900 mb-4">
+                Cancelled Bookings
+              </h2>
+              <div className="space-y-4">
+                {cancelledBookings.map((booking) => (
+                  <div
+                    key={booking.id}
+                    className="rounded-2xl border border-rose-200 bg-rose-50/75 p-6 backdrop-blur-sm"
+                  >
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-900">
+                          {booking.event.title}
+                        </h3>
+                        <p className="text-sm text-gray-600 mt-1">
+                          Cancelled on {formatDate(booking.createdAt)}
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setCopiedCoords("idle");
+                            setMapBooking(booking);
+                          }}
+                          className="mt-2 inline-flex items-center gap-2 text-emerald-600 hover:text-emerald-700 font-medium text-sm"
+                        >
+                          <MapPinned className="w-4 h-4" />
+                          View Map
+                        </button>
+                      </div>
+                      <span className="px-3 py-1 rounded-lg text-sm font-medium bg-red-100 text-red-700">
+                        CANCELLED
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+        </div>
+      )}
 
       <AnimatePresence>
         {mapBooking && (

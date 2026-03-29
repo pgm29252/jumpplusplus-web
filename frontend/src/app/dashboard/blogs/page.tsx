@@ -216,158 +216,158 @@ export default function ManageBlogsPage() {
         { label: "Manage Blogs" },
       ]}
     >
-        <div className="brand-glass rounded-3xl px-6 py-5">
-          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700/80">
-            Content Studio
-          </p>
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <h1 className="text-2xl font-bold text-gray-900">Manage Blogs</h1>
-            <Link
-              href="/dashboard/blogs/create"
-              className="inline-flex items-center rounded-lg bg-linear-to-r from-emerald-700 to-teal-600 px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90"
-            >
-              Create New Blog
-            </Link>
-          </div>
-          <p className="mt-1 text-sm text-gray-600">
-            Edit, review, publish/private, and remove blog posts.
-          </p>
+      <div className="brand-glass rounded-3xl px-6 py-5">
+        <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700/80">
+          Content Studio
+        </p>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h1 className="text-2xl font-bold text-gray-900">Manage Blogs</h1>
+          <Link
+            href="/dashboard/blogs/create"
+            className="inline-flex items-center rounded-lg bg-linear-to-r from-emerald-700 to-teal-600 px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+          >
+            Create New Blog
+          </Link>
+        </div>
+        <p className="mt-1 text-sm text-gray-600">
+          Edit, review, publish/private, and remove blog posts.
+        </p>
+      </div>
+
+      {(success || error) && (
+        <div
+          className={`rounded-2xl border px-5 py-4 text-sm ${
+            success
+              ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+              : "border-rose-200 bg-rose-50 text-rose-700"
+          }`}
+        >
+          {success ?? error}
+        </div>
+      )}
+
+      <section className="brand-glass rounded-3xl p-6">
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-gray-900">
+            Blog List ({blogs.length})
+          </h2>
+          {loadingBlogs && (
+            <Loader2 className="h-4 w-4 animate-spin text-emerald-600" />
+          )}
         </div>
 
-        {(success || error) && (
-          <div
-            className={`rounded-2xl border px-5 py-4 text-sm ${
-              success
-                ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                : "border-rose-200 bg-rose-50 text-rose-700"
-            }`}
-          >
-            {success ?? error}
-          </div>
+        {!loadingBlogs && blogs.length === 0 && (
+          <p className="rounded-xl border border-emerald-100 bg-white/70 px-4 py-6 text-center text-sm text-gray-600">
+            No blogs found. Create your first post from the button above.
+          </p>
         )}
 
-        <section className="brand-glass rounded-3xl p-6">
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-gray-900">
-              Blog List ({blogs.length})
-            </h2>
-            {loadingBlogs && (
-              <Loader2 className="h-4 w-4 animate-spin text-emerald-600" />
-            )}
-          </div>
-
-          {!loadingBlogs && blogs.length === 0 && (
-            <p className="rounded-xl border border-emerald-100 bg-white/70 px-4 py-6 text-center text-sm text-gray-600">
-              No blogs found. Create your first post from the button above.
-            </p>
-          )}
-
-          <div className="space-y-3">
-            {blogs.map((blog) => {
-              const busy = actionLoadingId === blog.id;
-              return (
-                <article
-                  key={blog.id}
-                  className="overflow-hidden rounded-2xl border border-emerald-100 bg-white/75 backdrop-blur-sm"
-                >
-                  <div className="flex items-start gap-0">
-                    {blog.coverImageUrl && (
-                      <div className="h-24 w-28 shrink-0 sm:h-28 sm:w-36">
-                        <img
-                          src={blog.coverImageUrl}
-                          alt={blog.title}
-                          className="h-full w-full object-cover"
-                        />
-                      </div>
-                    )}
-                    <div className="flex flex-1 flex-wrap items-start justify-between gap-3 p-4">
-                      <div>
-                        <h3 className="text-base font-bold text-gray-900">
-                          {blog.title}
-                        </h3>
-                        <p className="mt-1 text-xs text-gray-500">
-                          {blog.isPublished ? "Public" : "Private"} ·{" "}
-                          {formatDate(blog.createdAt)} · by {blog.author.name}
+        <div className="space-y-3">
+          {blogs.map((blog) => {
+            const busy = actionLoadingId === blog.id;
+            return (
+              <article
+                key={blog.id}
+                className="overflow-hidden rounded-2xl border border-emerald-100 bg-white/75 backdrop-blur-sm"
+              >
+                <div className="flex items-start gap-0">
+                  {blog.coverImageUrl && (
+                    <div className="h-24 w-28 shrink-0 sm:h-28 sm:w-36">
+                      <img
+                        src={blog.coverImageUrl}
+                        alt={blog.title}
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+                  )}
+                  <div className="flex flex-1 flex-wrap items-start justify-between gap-3 p-4">
+                    <div>
+                      <h3 className="text-base font-bold text-gray-900">
+                        {blog.title}
+                      </h3>
+                      <p className="mt-1 text-xs text-gray-500">
+                        {blog.isPublished ? "Public" : "Private"} ·{" "}
+                        {formatDate(blog.createdAt)} · by {blog.author.name}
+                      </p>
+                      {blog.excerpt && (
+                        <p className="mt-2 line-clamp-2 text-sm text-gray-600">
+                          {blog.excerpt}
                         </p>
-                        {blog.excerpt && (
-                          <p className="mt-2 line-clamp-2 text-sm text-gray-600">
-                            {blog.excerpt}
-                          </p>
+                      )}
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setViewingBlog(blog)}
+                        className="inline-flex items-center gap-1 rounded-lg border border-emerald-100 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-emerald-50"
+                      >
+                        <Eye className="h-3.5 w-3.5" />
+                        View
+                      </button>
+
+                      <button
+                        type="button"
+                        disabled={busy}
+                        onClick={() => void handleDuplicate(blog)}
+                        className="inline-flex items-center gap-1 rounded-lg border border-emerald-100 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        {busy ? (
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        ) : (
+                          <Copy className="h-3.5 w-3.5" />
                         )}
-                      </div>
+                        Duplicate
+                      </button>
 
-                      <div className="flex flex-wrap items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => setViewingBlog(blog)}
-                          className="inline-flex items-center gap-1 rounded-lg border border-emerald-100 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-emerald-50"
-                        >
-                          <Eye className="h-3.5 w-3.5" />
-                          View
-                        </button>
+                      <Link
+                        href={`/dashboard/blogs/${blog.id}/edit`}
+                        className="inline-flex items-center gap-1 rounded-lg border border-emerald-100 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-emerald-50"
+                      >
+                        <Pencil className="h-3.5 w-3.5" />
+                        Edit
+                      </Link>
 
-                        <button
-                          type="button"
-                          disabled={busy}
-                          onClick={() => void handleDuplicate(blog)}
-                          className="inline-flex items-center gap-1 rounded-lg border border-emerald-100 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-60"
-                        >
-                          {busy ? (
-                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                          ) : (
-                            <Copy className="h-3.5 w-3.5" />
-                          )}
-                          Duplicate
-                        </button>
+                      <button
+                        type="button"
+                        disabled={busy}
+                        onClick={() => void toggleVisibility(blog)}
+                        className="inline-flex items-center gap-1 rounded-lg border border-emerald-100 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        {blog.isPublished ? (
+                          <>
+                            <EyeOff className="h-3.5 w-3.5" />
+                            Set Private
+                          </>
+                        ) : (
+                          <>
+                            <Eye className="h-3.5 w-3.5" />
+                            Set Public
+                          </>
+                        )}
+                      </button>
 
-                        <Link
-                          href={`/dashboard/blogs/${blog.id}/edit`}
-                          className="inline-flex items-center gap-1 rounded-lg border border-emerald-100 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-emerald-50"
-                        >
-                          <Pencil className="h-3.5 w-3.5" />
-                          Edit
-                        </Link>
-
-                        <button
-                          type="button"
-                          disabled={busy}
-                          onClick={() => void toggleVisibility(blog)}
-                          className="inline-flex items-center gap-1 rounded-lg border border-emerald-100 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-60"
-                        >
-                          {blog.isPublished ? (
-                            <>
-                              <EyeOff className="h-3.5 w-3.5" />
-                              Set Private
-                            </>
-                          ) : (
-                            <>
-                              <Eye className="h-3.5 w-3.5" />
-                              Set Public
-                            </>
-                          )}
-                        </button>
-
-                        <button
-                          type="button"
-                          disabled={busy}
-                          onClick={() => setConfirmingDelete(blog)}
-                          className="inline-flex items-center gap-1 rounded-lg border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-medium text-rose-700 hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-60"
-                        >
-                          {busy ? (
-                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                          ) : (
-                            <Trash2 className="h-3.5 w-3.5" />
-                          )}
-                          Remove
-                        </button>
-                      </div>
+                      <button
+                        type="button"
+                        disabled={busy}
+                        onClick={() => setConfirmingDelete(blog)}
+                        className="inline-flex items-center gap-1 rounded-lg border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-medium text-rose-700 hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        {busy ? (
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        ) : (
+                          <Trash2 className="h-3.5 w-3.5" />
+                        )}
+                        Remove
+                      </button>
                     </div>
                   </div>
-                </article>
-              );
-            })}
-          </div>
-        </section>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      </section>
 
       <ActionConfirmModal
         open={confirmingDelete !== null}

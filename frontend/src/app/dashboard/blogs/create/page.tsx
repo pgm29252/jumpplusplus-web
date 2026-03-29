@@ -103,113 +103,113 @@ export default function CreateBlogPage() {
         { label: "Create Blog" },
       ]}
     >
-        <div className="brand-glass rounded-3xl px-6 py-5">
-          <div className="mb-3">
-            <Link
-              href="/dashboard/blogs"
-              className="inline-flex items-center gap-1 rounded-lg border border-emerald-100 bg-white/70 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-emerald-50"
-            >
-              <ArrowLeft className="h-3.5 w-3.5" />
-              Back to manage blogs
-            </Link>
+      <div className="brand-glass rounded-3xl px-6 py-5">
+        <div className="mb-3">
+          <Link
+            href="/dashboard/blogs"
+            className="inline-flex items-center gap-1 rounded-lg border border-emerald-100 bg-white/70 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-emerald-50"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" />
+            Back to manage blogs
+          </Link>
+        </div>
+        <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700/80">
+          Content Studio
+        </p>
+        <h1 className="text-2xl font-bold text-gray-900">Create Blog</h1>
+        <p className="mt-1 text-sm text-gray-600">
+          Publish updates and stories to the public blog feed.
+        </p>
+      </div>
+
+      <form
+        onSubmit={onSubmit}
+        className="rounded-3xl border border-emerald-100 bg-white/75 p-6 shadow-sm"
+      >
+        <div className="space-y-5">
+          <div>
+            <label className="mb-2 block text-sm font-semibold text-gray-700">
+              Title
+            </label>
+            <input
+              required
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="w-full rounded-xl border border-emerald-100 bg-white/80 px-4 py-3 text-sm text-gray-900 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              placeholder="Write a clear blog title"
+            />
           </div>
-          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700/80">
-            Content Studio
-          </p>
-          <h1 className="text-2xl font-bold text-gray-900">Create Blog</h1>
-          <p className="mt-1 text-sm text-gray-600">
-            Publish updates and stories to the public blog feed.
-          </p>
+
+          <div>
+            <label className="mb-2 block text-sm font-semibold text-gray-700">
+              Excerpt
+            </label>
+            <textarea
+              value={excerpt}
+              onChange={(e) => setExcerpt(e.target.value)}
+              rows={2}
+              className="w-full resize-none rounded-xl border border-emerald-100 bg-white/80 px-4 py-3 text-sm text-gray-900 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              placeholder="Short preview shown in blog feed"
+            />
+          </div>
+
+          <div>
+            <label className="mb-2 block text-sm font-semibold text-gray-700">
+              Cover Image URL
+            </label>
+            <input
+              value={coverImageUrl}
+              onChange={(e) => setCoverImageUrl(e.target.value)}
+              className="w-full rounded-xl border border-emerald-100 bg-white/80 px-4 py-3 text-sm text-gray-900 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              placeholder="https://example.com/cover.jpg"
+            />
+          </div>
+
+          <div>
+            <label className="mb-2 block text-sm font-semibold text-gray-700">
+              Content
+            </label>
+            <div className="rounded-xl border border-emerald-100 bg-white/80">
+              <BlogContentEditor
+                key={editorKey}
+                defaultValue=""
+                onChange={(value) => {
+                  contentRef.current = value;
+                }}
+              />
+            </div>
+          </div>
+
+          <label className="inline-flex items-center gap-2 text-sm text-gray-700">
+            <input
+              type="checkbox"
+              checked={isPublished}
+              onChange={(e) => setIsPublished(e.target.checked)}
+              className="h-4 w-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+            />
+            Public blog (uncheck to keep private)
+          </label>
         </div>
 
-        <form
-          onSubmit={onSubmit}
-          className="rounded-3xl border border-emerald-100 bg-white/75 p-6 shadow-sm"
-        >
-          <div className="space-y-5">
-            <div>
-              <label className="mb-2 block text-sm font-semibold text-gray-700">
-                Title
-              </label>
-              <input
-                required
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                className="w-full rounded-xl border border-emerald-100 bg-white/80 px-4 py-3 text-sm text-gray-900 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                placeholder="Write a clear blog title"
-              />
-            </div>
-
-            <div>
-              <label className="mb-2 block text-sm font-semibold text-gray-700">
-                Excerpt
-              </label>
-              <textarea
-                value={excerpt}
-                onChange={(e) => setExcerpt(e.target.value)}
-                rows={2}
-                className="w-full resize-none rounded-xl border border-emerald-100 bg-white/80 px-4 py-3 text-sm text-gray-900 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                placeholder="Short preview shown in blog feed"
-              />
-            </div>
-
-            <div>
-              <label className="mb-2 block text-sm font-semibold text-gray-700">
-                Cover Image URL
-              </label>
-              <input
-                value={coverImageUrl}
-                onChange={(e) => setCoverImageUrl(e.target.value)}
-                className="w-full rounded-xl border border-emerald-100 bg-white/80 px-4 py-3 text-sm text-gray-900 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                placeholder="https://example.com/cover.jpg"
-              />
-            </div>
-
-            <div>
-              <label className="mb-2 block text-sm font-semibold text-gray-700">
-                Content
-              </label>
-              <div className="rounded-xl border border-emerald-100 bg-white/80">
-                <BlogContentEditor
-                  key={editorKey}
-                  defaultValue=""
-                  onChange={(value) => {
-                    contentRef.current = value;
-                  }}
-                />
-              </div>
-            </div>
-
-            <label className="inline-flex items-center gap-2 text-sm text-gray-700">
-              <input
-                type="checkbox"
-                checked={isPublished}
-                onChange={(e) => setIsPublished(e.target.checked)}
-                className="h-4 w-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
-              />
-              Public blog (uncheck to keep private)
-            </label>
+        <div className="sticky bottom-0 mt-6 -mx-6 border-t border-emerald-100 bg-white/75 px-6 py-4 backdrop-blur-sm">
+          <div className="flex justify-end">
+            <button
+              type="submit"
+              disabled={submitting}
+              className="inline-flex items-center gap-2 rounded-lg bg-linear-to-r from-emerald-700 to-teal-600 px-5 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {submitting ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Publishing...
+                </>
+              ) : (
+                "Create blog"
+              )}
+            </button>
           </div>
-
-          <div className="sticky bottom-0 mt-6 -mx-6 border-t border-emerald-100 bg-white/75 px-6 py-4 backdrop-blur-sm">
-            <div className="flex justify-end">
-              <button
-                type="submit"
-                disabled={submitting}
-                className="inline-flex items-center gap-2 rounded-lg bg-linear-to-r from-emerald-700 to-teal-600 px-5 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {submitting ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Publishing...
-                  </>
-                ) : (
-                  "Create blog"
-                )}
-              </button>
-            </div>
-          </div>
-        </form>
+        </div>
+      </form>
 
       <ToastNotice
         open={toast.open}

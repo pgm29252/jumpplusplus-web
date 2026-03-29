@@ -172,9 +172,9 @@ export default function DashboardPage() {
   ].filter((item) => item.show);
 
   return (
-    <DashboardPageLayout breadcrumbItems={[{ label: "Dashboard" }]}> 
-        {/* Header */}
-        <div className="brand-glass rounded-3xl px-6 py-5">
+    <DashboardPageLayout breadcrumbItems={[{ label: "Dashboard" }]}>
+      {/* Header */}
+      <div className="brand-glass rounded-3xl px-6 py-5">
         <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700/80">
           Dashboard Overview
         </p>
@@ -186,8 +186,8 @@ export default function DashboardPage() {
         </p>
       </div>
 
-        {/* Section: Overview */}
-        <section className="mb-8">
+      {/* Section: Overview */}
+      <section className="mb-8">
         <div className="mb-3 flex items-center gap-2">
           <CalendarDays className="w-4 h-4 text-sky-600" />
           <h2 className="text-lg font-bold text-gray-900">Overview Summary</h2>
@@ -271,8 +271,8 @@ export default function DashboardPage() {
         )}
       </section>
 
-        {/* Section: Other features */}
-        <section className="mb-8">
+      {/* Section: Other features */}
+      <section className="mb-8">
         <div className="mb-3 flex items-center gap-2">
           <Settings2 className="w-4 h-4 text-emerald-600" />
           <h2 className="text-lg font-bold text-gray-900">Other Features</h2>
@@ -295,8 +295,8 @@ export default function DashboardPage() {
         </div>
       </section>
 
-        {/* Stats — admin only */}
-        {user?.role === "ADMIN" && (
+      {/* Stats — admin only */}
+      {user?.role === "ADMIN" && (
         <>
           {loadingStats ? (
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -389,8 +389,8 @@ export default function DashboardPage() {
         </>
       )}
 
-        {/* Non-admin view */}
-        {user?.role !== "ADMIN" && (
+      {/* Non-admin view */}
+      {user?.role !== "ADMIN" && (
         <div className="brand-glass rounded-2xl p-8 text-center">
           <div className="w-16 h-16 bg-emerald-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <UserCheck className="w-8 h-8 text-emerald-500" />
