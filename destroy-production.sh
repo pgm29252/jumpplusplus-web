@@ -36,7 +36,7 @@ Stops and removes all production containers, networks, and optionally
 volumes, images, and environment files.
 
 Options:
-  --volumes    Also delete persistent Docker volumes (postgres_data, backend_uploads)
+  --volumes    Also delete persistent Docker volumes (backend_uploads)
   --images     Also remove built Docker images for this project
   --env        Also delete .env.production and .env.production.runtime
   --all        Equivalent to --volumes --images --env
@@ -78,7 +78,7 @@ if [ "$YES" = false ]; then
   echo "    - Stop and remove all containers"
   echo "    - Remove Docker networks for this project"
   if [ "$REMOVE_VOLUMES" = true ]; then
-    warn "  - DELETE ALL PERSISTENT VOLUMES (postgres_data, backend_uploads)"
+    warn "  - DELETE ALL PERSISTENT VOLUMES (backend_uploads)"
   fi
   if [ "$REMOVE_IMAGES" = true ]; then
     echo "  - Remove built Docker images"

@@ -159,12 +159,6 @@ apply_local_defaults() {
   local local_frontend_url=""
   local local_api_url=""
   local local_db_url=""
-  local db_user=""
-  local db_password=""
-  local db_name=""
-  local db_creds_host=""
-  local db_creds=""
-  local db_and_params=""
 
   if [ -f "$LOCAL_BACKEND_ENV_FILE" ]; then
     local_jwt_secret="$(read_env_value "$LOCAL_BACKEND_ENV_FILE" "JWT_SECRET" || true)"
@@ -185,28 +179,8 @@ apply_local_defaults() {
   fill_if_missing_or_placeholder "NEXT_PUBLIC_API_URL" "$local_api_url" "/api"
 
   if [ -n "$local_db_url" ]; then
-    local_db_url="${local_db_url#postgresql://}"
-    local_db_url="${local_db_url#postgres://}"
-
-    if [ "$local_db_url" != "${local_db_url#*@}" ]; then
-      db_creds_host="${local_db_url%%/*}"
-      db_creds="${db_creds_host%%@*}"
-      db_and_params="${local_db_url#*/}"
-
-      if [ "$db_creds" != "$db_creds_host" ] && [ "$db_creds" != "" ]; then
-        db_user="${db_creds%%:*}"
-        db_password="${db_creds#*:}"
-      fi
-
-      if [ -n "$db_and_params" ]; then
-        db_name="${db_and_params%%\?*}"
-      fi
-    fi
+    fill_if_missing_or_placeholder "DATABASE_URL" "$local_db_url" "postgresql://USER:PASSWORD@your-db-host:5432/jumpplusplus?schema=public"
   fi
-
-  fill_if_missing_or_placeholder "POSTGRES_USER" "$db_user" "jumpplus"
-  fill_if_missing_or_placeholder "POSTGRES_PASSWORD" "$db_password" "change-me-strong-password"
-  fill_if_missing_or_placeholder "POSTGRES_DB" "$db_name" "jumpplusplus"
 }
 
 command -v docker >/dev/null 2>&1 || fail "docker is not installed"
@@ -228,22 +202,21 @@ apply_local_defaults
 
 prepare_runtime_env_file "$ENV_FILE"
 
-POSTGRES_DB_VALUE="$(read_env_value "$RUNTIME_ENV_FILE" "POSTGRES_DB" || true)"
-POSTGRES_USER_VALUE="$(read_env_value "$RUNTIME_ENV_FILE" "POSTGRES_USER" || true)"
-POSTGRES_PASSWORD_VALUE="$(read_env_value "$RUNTIME_ENV_FILE" "POSTGRES_PASSWORD" || true)"
+POSTGRES_DB_VALUE=""
+POSTGRES_USER_VALUE=""
+POSTGRES_PASSWORD_VALUE=""
+DATABASE_URL_VALUE="$(read_env_value "$RUNTIME_ENV_FILE" "DATABASE_URL" || true)"
 JWT_SECRET_VALUE="$(read_env_value "$RUNTIME_ENV_FILE" "JWT_SECRET" || true)"
 FRONTEND_URL_VALUE="$(read_env_value "$RUNTIME_ENV_FILE" "FRONTEND_URL" || true)"
 NEXT_PUBLIC_API_URL_VALUE="$(read_env_value "$RUNTIME_ENV_FILE" "NEXT_PUBLIC_API_URL" || true)"
 
-[ -n "$POSTGRES_DB_VALUE" ] || fail "POSTGRES_DB is required in $ENV_FILE"
-[ -n "$POSTGRES_USER_VALUE" ] || fail "POSTGRES_USER is required in $ENV_FILE"
-[ -n "$POSTGRES_PASSWORD_VALUE" ] || fail "POSTGRES_PASSWORD is required in $ENV_FILE"
+[ -n "$DATABASE_URL_VALUE" ] || fail "DATABASE_URL is required in $ENV_FILE"
 [ -n "$JWT_SECRET_VALUE" ] || fail "JWT_SECRET is required in $ENV_FILE"
 [ -n "$FRONTEND_URL_VALUE" ] || fail "FRONTEND_URL is required in $ENV_FILE"
 [ -n "$NEXT_PUBLIC_API_URL_VALUE" ] || fail "NEXT_PUBLIC_API_URL is required in $ENV_FILE"
 
-if [ "$POSTGRES_PASSWORD_VALUE" = "change-me-strong-password" ]; then
-  fail "POSTGRES_PASSWORD is still a placeholder"
+if [[ "$DATABASE_URL_VALUE" == *"USER:PASSWORD"* ]] || [[ "$DATABASE_URL_VALUE" == *"your-db-host"* ]]; then
+  fail "DATABASE_URL is still a placeholder in $ENV_FILE"
 fi
 
 if [ "$JWT_SECRET_VALUE" = "change-this-super-secret-jwt" ]; then
@@ -253,9 +226,7 @@ fi
 if [ "$PRINT_EFFECTIVE_ENV" = true ]; then
   log "Effective environment values"
   printf 'ENV_FILE=%s\n' "$ENV_FILE"
-  printf 'POSTGRES_DB=%s\n' "$POSTGRES_DB_VALUE"
-  printf 'POSTGRES_USER=%s\n' "$POSTGRES_USER_VALUE"
-  printf 'POSTGRES_PASSWORD=%s\n' "$(mask_secret "$POSTGRES_PASSWORD_VALUE")"
+  printf 'DATABASE_URL=%s\n' "$(mask_secret "$DATABASE_URL_VALUE")"
   printf 'JWT_SECRET=%s\n' "$(mask_secret "$JWT_SECRET_VALUE")"
   printf 'FRONTEND_URL=%s\n' "$FRONTEND_URL_VALUE"
   printf 'NEXT_PUBLIC_API_URL=%s\n' "$NEXT_PUBLIC_API_URL_VALUE"
