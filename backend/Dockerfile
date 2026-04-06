@@ -28,6 +28,7 @@ ENV NODE_ENV=production
 
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/src/generated ./dist/generated
 
 RUN mkdir -p /app/uploads
 
