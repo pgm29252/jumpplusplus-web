@@ -18,11 +18,13 @@ WORKDIR /app
 
 RUN apt-get update -y && apt-get install -y openssl --no-install-recommends && rm -rf /var/lib/apt/lists/*
 
-ENV NODE_ENV=production
 ENV PORT=4000
 
 COPY package*.json ./
+# Install all deps (including devDeps) so prisma CLI is available for migrate deploy
 RUN npm ci
+
+ENV NODE_ENV=production
 
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/dist ./dist
