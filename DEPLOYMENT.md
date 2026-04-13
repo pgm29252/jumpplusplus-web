@@ -5,10 +5,13 @@
 - `backend/Dockerfile`
 - `frontend/Dockerfile`
 - `docker-compose.yml`
+- `docker-stack.yml`
 - `nginx/nginx.conf`
 - `.env.production.example`
 - `backend/.dockerignore`
 - `frontend/.dockerignore`
+- `deploy-swarm.sh`
+- `destroy-swarm.sh`
 
 ## 1. Create production env file
 
@@ -36,6 +39,34 @@ docker compose --env-file .env.production up -d --build
 docker compose ps
 docker compose logs -f nginx
 docker compose logs -f backend
+```
+
+## Docker Swarm deployment
+
+1. Initialize Docker Swarm on the host if needed:
+
+```bash
+docker swarm init
+```
+
+2. Build and deploy the stack from the project root:
+
+```bash
+./deploy-swarm.sh
+```
+
+3. Check stack status:
+
+```bash
+docker stack ls
+docker stack services jumpplusplus
+docker service logs -f jumpplusplus_nginx jumpplusplus_backend
+```
+
+4. Remove the stack:
+
+```bash
+./destroy-swarm.sh
 ```
 
 ## Routing behavior
